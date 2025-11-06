@@ -1,4 +1,4 @@
-package User;
+package User.webpages;
 
 import java.awt.*;
 import javax.swing.*;
