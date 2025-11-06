@@ -9,6 +9,8 @@ public class Message {
 	private String sender;
 	private List <String> recipients;
 	
+	//test
+	
 	public Message(LocalDateTime timestamp, String message,String sender,List<String> recipients) {
 		this.timestamp = timestamp;
 		this.message = message;
