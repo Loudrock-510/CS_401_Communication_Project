@@ -8,6 +8,7 @@ public class Message {
 	private String message;
 	private String sender;
 	private List <String> recipients;
+	//test
 	
 	public Message(LocalDateTime timestamp, String message,String sender,List<String> recipients) {
 		this.timestamp = timestamp;
