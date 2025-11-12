@@ -1,0 +1,78 @@
+package User.webpages;
+
+import java.awt.*;
+import javax.swing.*;
+
+public class ChatroomIT {
+    public static void main(String[] args) {
+        String[] exampleMessages = {"hello", "bye", "ok", "bye", "ok", "bye", "ok", "bye", "ok", "bye", "ok", "bye", "ok", "bye", "ok", "bye", "ok"};
+        String exampleName = "jimmy";
+        SwingUtilities.invokeLater(() -> createChatroomIT(exampleMessages, exampleName, true));
+    }
+    
+    //To set how to set up the IT's chatroom view of another User'a chat
+    private static void createChatroomIT(String[] recentMessages, String otherUser, boolean isIT) {
+        JFrame frame = new JFrame(otherUser + "'s Chat");
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.setPreferredSize(new Dimension(900, 600));
+        frame.setMinimumSize(new Dimension(720, 480));
+
+        // Root (X-axis BoxLayout)
+        JPanel root = new JPanel();
+        root.setLayout(new BoxLayout(root, BoxLayout.X_AXIS));
+        root.add(Box.createHorizontalStrut(50));
+
+        // Main panel (Y-axis)
+        JPanel main = new JPanel();
+        main.setLayout(new BoxLayout(main, BoxLayout.Y_AXIS));
+        main.setAlignmentY(Component.TOP_ALIGNMENT);
+
+        // Title
+        JLabel title = new JLabel(otherUser + "'s Chat");
+        title.setFont(title.getFont().deriveFont(Font.BOLD, 22f));
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+        main.add(Box.createVerticalStrut(24));
+        main.add(title);
+
+        // Messages list
+        JPanel listPanel = new JPanel();
+        listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
+        listPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
+
+        for (String nextMessage : recentMessages) {
+            JLabel chatText = new JLabel(": " + nextMessage);
+            chatText.setAlignmentX(Component.LEFT_ALIGNMENT);
+            chatText.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
+            listPanel.add(chatText);
+            listPanel.add(Box.createVerticalStrut(4));
+        }
+
+        JScrollPane recentScroll = new JScrollPane(
+                listPanel,
+                ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER
+        );
+        recentScroll.setPreferredSize(new Dimension(400, 300));
+        recentScroll.setMinimumSize(new Dimension(300, 400));
+        recentScroll.setMaximumSize(new Dimension(600, 800));
+        recentScroll.getVerticalScrollBar().setUnitIncrement(16);
+        recentScroll.setAlignmentX(Component.CENTER_ALIGNMENT);
+
+        main.add(Box.createVerticalStrut(16));
+        main.add(recentScroll);
+
+        // Spacer
+        main.add(Box.createVerticalStrut(50));
+
+        main.add(Box.createVerticalGlue());
+
+        // Add main to root
+        root.add(main);
+        root.add(Box.createHorizontalGlue());
+
+        frame.setContentPane(root);
+        frame.pack();
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+    }
+}

@@ -11,9 +11,17 @@ public class Login {
     private static void createLoginPage() {
         JFrame jFrame = new JFrame("Login");
         JPanel inputPanel = new JPanel();
+        inputPanel.setBackground(Color.LIGHT_GRAY);
+
+        JLabel title = new JLabel("XYZ teamchat Login");
+        title.setFont(title.getFont().deriveFont(Font.BOLD, 22f));
+        title.setAlignmentX(Component.CENTER_ALIGNMENT);
+        jFrame.add(Box.createVerticalStrut(24));
+        jFrame.add(title);
+        
 
         jFrame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        jFrame.setLayout(new FlowLayout());
+        jFrame.setLayout(new BoxLayout(jFrame.getContentPane(), BoxLayout.Y_AXIS));
         jFrame.setPreferredSize(new Dimension(700, 450));
         jFrame.setMinimumSize(jFrame.getPreferredSize());
         jFrame.setMaximumSize(new Dimension(1200, 800));
@@ -31,8 +39,8 @@ public class Login {
         userTextField.setMaximumSize(new Dimension(400, 40));
         passTextField.setMaximumSize(new Dimension(400, 40));
         loginButton.setMaximumSize(new Dimension(200, 40));
-        TextPrompt tpEquation = new TextPrompt("Username", userTextField);
-        TextPrompt tpAnswer = new TextPrompt("Password", passTextField);
+        TextPrompt userTF = new TextPrompt("Username", userTextField);
+        TextPrompt passTF = new TextPrompt("Password", passTextField);
 
         inputPanel.add(Box.createVerticalStrut(75));
         inputPanel.add(userTextField);
@@ -42,12 +50,21 @@ public class Login {
         inputPanel.add(loginButton);
         inputPanel.add(Box.createVerticalGlue());
         jFrame.add(inputPanel);
+        jFrame.add(Box.createVerticalGlue());
         jFrame.setVisible(true);
         inputPanel.setVisible(true);
 
         loginButton.addActionListener(e -> {
-            //insert login sequence here!
-            
+            String user = userTextField.getText().trim();
+            String password = passTextField.getText().trim();
+            if (user.isEmpty() || password.isEmpty()) {
+                JOptionPane.showMessageDialog(jFrame, "Please enter both username and password.");
+            } else {
+                //to implement login verification
+                //Login loginAttempt = new Login(user, password);
+                // if (loginAttempt.isSuccessful()) {
+                }
+            }
         });
     }
 }
