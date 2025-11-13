@@ -14,6 +14,7 @@ public class ChatroomIT {
     private static void createChatroomIT(String[] recentMessages, String otherUser, boolean isIT) {
         JFrame frame = new JFrame(otherUser + "'s Chat");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        //1920 x 1080 minimum, implement for all
         frame.setPreferredSize(new Dimension(900, 600));
         frame.setMinimumSize(new Dimension(720, 480));
 

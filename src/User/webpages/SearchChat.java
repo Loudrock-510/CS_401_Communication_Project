@@ -104,6 +104,7 @@ public class SearchChat {
             } else {
                 JOptionPane.showMessageDialog(frame, "Searching for: " + query);
                 // Implement actual search logic here
+                //SearchChat searchResult = new SearchChat(query);
             }
         });
     }

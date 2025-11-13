@@ -7,7 +7,7 @@ public class Chatroom {
     public static void main(String[] args) {
         String[] exampleMessages = {"hello", "bye", "ok", "bye", "ok", "bye", "ok", "bye", "ok", "bye", "ok", "bye", "ok", "bye", "ok", "bye", "ok"};
         String exampleName = "jimmy";
-        SwingUtilities.invokeLater(() -> createChatroom(exampleMessages, exampleName, false));
+        SwingUtilities.invokeLater(() -> createChatroom(exampleMessages, exampleName, true));
     }
 
     private static void createChatroom(String[] recentMessages, String otherUser, boolean isIT) {
