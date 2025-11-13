@@ -5,9 +5,12 @@ import java.util.List;
 
 public class PacketHandler {
     private Client client;
-
+    private Server server;
     public PacketHandler(Client client) {
         this.client = client;
+    }
+    public PacketHandler(Server server) {
+        this.server = server;
     }
     
     /*
