@@ -13,6 +13,11 @@ public class Packet implements Serializable {
 	        this.status = status; 
 	        this.content = content;
 	    }
+	    public Packet(Type type, String status) {
+	        this.type = type;
+	        this.status = status; 
+	        this.content = null;
+	    }
 
 	    public Type getType() {
 	        return type;
