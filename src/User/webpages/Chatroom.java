@@ -3,128 +3,81 @@ package User.webpages;
 import java.awt.*;
 import javax.swing.*;
 
-public class Chatroom {
-    public static void main(String[] args) {
-        String[] exampleMessages = {"hello", "bye", "ok", "bye", "ok", "bye", "ok", "bye", "ok", "bye", "ok", "bye", "ok", "bye", "ok", "bye", "ok"};
-        String exampleName = "jimmy";
-        SwingUtilities.invokeLater(() -> createChatroom(exampleMessages, exampleName, true));
-    }
+class Chatroom extends JPanel {
+    private final TeamChatApp app;
+    private final JPanel listPanel = new JPanel();
+    private final JLabel title = new JLabel();
+    private final JTextField sendMessageTf = new JTextField();
 
-    private static void createChatroom(String[] recentMessages, String otherUser, boolean isIT) {
-        JFrame frame = new JFrame(otherUser + "'s Chat");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setPreferredSize(new Dimension(900, 600));
-        frame.setMinimumSize(new Dimension(720, 480));
+    Chatroom(TeamChatApp app) {
+        this.app = app;
 
-        // Root (X-axis BoxLayout)
-        JPanel root = new JPanel();
-        root.setLayout(new BoxLayout(root, BoxLayout.X_AXIS));
-        root.add(Box.createHorizontalStrut(50));
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
+        add(Box.createVerticalStrut(24));
 
-        // Main panel (Y-axis)
-        JPanel main = new JPanel();
-        main.setLayout(new BoxLayout(main, BoxLayout.Y_AXIS));
-        main.setAlignmentY(Component.TOP_ALIGNMENT);
-
-        // Title
-        JLabel title = new JLabel(otherUser + "'s Chat");
         title.setFont(title.getFont().deriveFont(Font.BOLD, 22f));
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
-        main.add(Box.createVerticalStrut(24));
-        main.add(title);
+        add(title);
 
-        // Messages list
-        JPanel listPanel = new JPanel();
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
-        listPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
-
-        for (String nextMessage : recentMessages) {
-            JLabel chatText = new JLabel(": " + nextMessage);
-            chatText.setAlignmentX(Component.LEFT_ALIGNMENT);
-            chatText.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
-            listPanel.add(chatText);
-            listPanel.add(Box.createVerticalStrut(4));
-        }
-
-        JScrollPane recentScroll = new JScrollPane(
-                listPanel,
+        JScrollPane recentScroll = new JScrollPane(listPanel,
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
-                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER
-        );
+                ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
         recentScroll.setPreferredSize(new Dimension(400, 300));
-        recentScroll.setMinimumSize(new Dimension(300, 400));
-        recentScroll.setMaximumSize(new Dimension(600, 800));
         recentScroll.getVerticalScrollBar().setUnitIncrement(16);
-        recentScroll.setAlignmentX(Component.CENTER_ALIGNMENT);
+        add(Box.createVerticalStrut(16));
+        add(recentScroll);
+        add(Box.createVerticalStrut(24));
 
-        main.add(Box.createVerticalStrut(16));
-        main.add(recentScroll);
-
-        // Spacer
-        main.add(Box.createVerticalStrut(50));
-        
         JPanel sendPanel = new JPanel();
         sendPanel.setLayout(new BoxLayout(sendPanel, BoxLayout.Y_AXIS));
-        sendPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JTextField sendMessageTf = new JTextField();
         sendMessageTf.setMaximumSize(new Dimension(600, 40));
-        sendMessageTf.setAlignmentX(Component.CENTER_ALIGNMENT);
         new TextPrompt("New Messages", sendMessageTf);
 
-        JPanel buttonPanel = new JPanel();
-        buttonPanel.setLayout(new BoxLayout(buttonPanel, BoxLayout.X_AXIS));
-
-
         JButton sendButton = new JButton("Send");
-        sendButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        sendButton.setMaximumSize(new Dimension(200, 40));
+        JButton backButton = new JButton("Go to another chat back in Search Chat");
 
-        buttonPanel.add(sendButton);
-        if (isIT){
-            JButton ITsearch = new JButton("Spectate another viewer's chats");
-            ITsearch.setAlignmentX(Component.CENTER_ALIGNMENT);
-            ITsearch.setMaximumSize(new Dimension(200, 40));
-            buttonPanel.add(ITsearch);
-            ITsearch.addActionListener(e -> {
-                //switch to IT search
-            });
-        }
-        
         sendPanel.add(sendMessageTf);
         sendPanel.add(Box.createVerticalStrut(12));
-        sendPanel.add(buttonPanel);
-        sendPanel.add(Box.createVerticalGlue());
+        sendPanel.add(sendButton);
+        sendPanel.add(Box.createVerticalStrut(8));
+        sendPanel.add(backButton);
+        add(sendPanel);
+        add(Box.createVerticalGlue());
 
-        main.add(sendPanel);
-
-        // Action: only present when !isIT
         sendButton.addActionListener(e -> {
-            String query = sendMessageTf.getText().trim();
-            if (query.isEmpty()) {
-                JOptionPane.showMessageDialog(frame, "No message detected.");
+            String text = sendMessageTf.getText().trim();
+            if (text.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "No message detected.");
             } else {
-                JLabel chatText = new JLabel("You: " + query);
-                chatText.setAlignmentX(Component.LEFT_ALIGNMENT);
-                chatText.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
-                listPanel.add(chatText);
-                listPanel.add(Box.createVerticalStrut(4));
-                listPanel.revalidate();
-                listPanel.repaint();
+                appendMessage("You: " + text);
                 sendMessageTf.setText("");
+                revalidate();
+                repaint();
             }
         });
-    
+        backButton.addActionListener(e ->{
+            app.showSearchChat();
+        });
+    }
 
-        main.add(Box.createVerticalGlue());
+    void loadConversation(String otherUser, String[] recentMessages) {
+        title.setText(otherUser + "'s Chat");
+        listPanel.removeAll();
+        for (String m : recentMessages) appendMessage(": " + m);
+        revalidate();
+        repaint();
+    }
 
-        // Add main to root
-        root.add(main);
-        root.add(Box.createHorizontalGlue());
+    void refreshITVisibility(boolean isIT) {
+        // Chatroom currently has no IT-only controls,
+        // but the method exists for consistency
+    }
 
-        frame.setContentPane(root);
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
+    private void appendMessage(String text) {
+        JLabel label = new JLabel(text);
+        listPanel.add(label);
+        listPanel.add(Box.createVerticalStrut(4));
     }
 }

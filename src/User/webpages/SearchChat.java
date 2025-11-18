@@ -3,109 +3,76 @@ package User.webpages;
 import java.awt.*;
 import javax.swing.*;
 
-/**
- * Updated SearchChat with scrollable list of recent chats inside main panel.
- */
-public class SearchChat {
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> createChatSearchPage(new String[]{ "Alice", "Bob", "Charlie", "Dev Chat", "Project Room"}));
-    }
+class SearchChat extends JPanel {
+    private final TeamChatApp app;
+    private final JButton spectateButton = new JButton("Spectate another viewer's chats");
 
-    private static void createChatSearchPage(String[] recentChats) {
-        // Frame setup
-        JFrame frame = new JFrame("Search");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setPreferredSize(new Dimension(900, 600));
-        frame.setMinimumSize(new Dimension(720, 480));
+    SearchChat(TeamChatApp app) {
+        this.app = app;
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        // Root (X-axis BoxLayout)
-        JPanel root = new JPanel();
-        root.setLayout(new BoxLayout(root, BoxLayout.X_AXIS));
-        root.add(Box.createHorizontalStrut(50));
-
-        // Main panel (Y-axis)
-        JPanel main = new JPanel();
-        main.setLayout(new BoxLayout(main, BoxLayout.Y_AXIS));
-        main.setAlignmentY(Component.TOP_ALIGNMENT);
-
-        // Title
         JLabel title = new JLabel("Search recent texts");
         title.setFont(title.getFont().deriveFont(Font.BOLD, 22f));
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
-        main.add(Box.createVerticalStrut(24));
-        main.add(title);
+        add(Box.createVerticalStrut(24));
+        add(title);
 
-        // Recent panel with scrollable list of buttons
+        String[] recentChats = { "Alice", "Bob", "Charlie", "Dev Chat", "Project Room" };
         JPanel listPanel = new JPanel();
         listPanel.setLayout(new BoxLayout(listPanel, BoxLayout.Y_AXIS));
-        listPanel.setAlignmentX(Component.LEFT_ALIGNMENT);
 
         for (String chatTitle : recentChats) {
             JButton chatButton = new JButton(chatTitle);
-            chatButton.setAlignmentX(Component.LEFT_ALIGNMENT);
-            chatButton.setMaximumSize(new Dimension(Integer.MAX_VALUE, 44));
-            chatButton.addActionListener(e -> JOptionPane.showMessageDialog(frame, "Opening chat: " + chatTitle));
+            chatButton.addActionListener(e -> app.openUserChat(chatTitle, demoMessages()));
             listPanel.add(chatButton);
             listPanel.add(Box.createVerticalStrut(8));
         }
 
-        JScrollPane recentScroll = new JScrollPane(listPanel,
+        JScrollPane scroll = new JScrollPane(listPanel,
                 ScrollPaneConstants.VERTICAL_SCROLLBAR_ALWAYS,
                 ScrollPaneConstants.HORIZONTAL_SCROLLBAR_NEVER);
-        recentScroll.setPreferredSize(new Dimension(400, 300));
-        recentScroll.setMinimumSize(new Dimension(300, 400));
-        recentScroll.setMaximumSize(new Dimension(600,800));
-        recentScroll.getVerticalScrollBar().setUnitIncrement(16);
-        recentScroll.setAlignmentX(Component.CENTER_ALIGNMENT);
+        scroll.setPreferredSize(new Dimension(400, 300));
+        scroll.getVerticalScrollBar().setUnitIncrement(16);
+        scroll.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        main.add(Box.createVerticalStrut(16));
-        main.add(recentScroll);
-
-        // 50px spacer
-        main.add(Box.createVerticalStrut(50));
-
-        // Search field and button section
-        JPanel searchPanel = new JPanel();
-        searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.Y_AXIS));
-        searchPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
+        add(Box.createVerticalStrut(16));
+        add(scroll);
 
         JTextField searchField = new JTextField();
         searchField.setMaximumSize(new Dimension(600, 40));
-        searchField.setAlignmentX(Component.CENTER_ALIGNMENT);
         new TextPrompt("Type to search", searchField);
 
         JButton searchButton = new JButton("Search");
         searchButton.setAlignmentX(Component.CENTER_ALIGNMENT);
-        searchButton.setMaximumSize(new Dimension(200, 40));
 
-        searchPanel.add(searchField);
-        searchPanel.add(Box.createVerticalStrut(12));
-        searchPanel.add(searchButton);
-        searchPanel.add(Box.createVerticalGlue());
+        spectateButton.setAlignmentX(Component.CENTER_ALIGNMENT);
+        spectateButton.addActionListener(e -> app.showSearchIT());
 
-        main.add(searchPanel);
-        main.add(Box.createVerticalGlue());
+        add(Box.createVerticalStrut(12));
+        add(searchField);
+        add(Box.createVerticalStrut(12));
+        add(searchButton);
+        add(Box.createVerticalStrut(12));
+        add(spectateButton);
+        add(Box.createVerticalGlue());
 
-        // Add main to root
-        root.add(main);
-        root.add(Box.createHorizontalGlue());
-
-        frame.setContentPane(root);
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
-
-        // Search action logic placeholder
         searchButton.addActionListener(e -> {
-            String query = searchField.getText().trim();
-            if (query.isEmpty()) {
-                JOptionPane.showMessageDialog(frame, "Enter text to search.");
-                // No action taken for empty query
+            String q = searchField.getText().trim();
+            if (q.isEmpty()) {
+                JOptionPane.showMessageDialog(this, "Enter text to search.");
             } else {
-                JOptionPane.showMessageDialog(frame, "Searching for: " + query);
-                // Implement actual search logic here
-                //SearchChat searchResult = new SearchChat(query);
+                app.openUserChat(q, demoMessages());
             }
         });
+
+        refreshITVisibility(app.isIT());
+    }
+
+    void refreshITVisibility(boolean isIT) {
+        spectateButton.setVisible(isIT);
+    }
+
+    private static String[] demoMessages() {
+        return new String[]{ "hello", "bye", "ok", "see you", "done" };
     }
 }

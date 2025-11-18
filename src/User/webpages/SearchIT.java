@@ -3,40 +3,20 @@ package User.webpages;
 import java.awt.*;
 import javax.swing.*;
 
-/**
- * Updated SearchChat with scrollable list of recent chats inside main panel.
- */
-public class SearchIT {
-    public static void main(String[] args) {
-        SwingUtilities.invokeLater(() -> createITSearch());
-    }
+class SearchIT extends JPanel {
+    private final TeamChatApp app;
 
-    private static void createITSearch() {
-        // Frame setup
-        JFrame frame = new JFrame("IT Search for User");
-        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-        frame.setPreferredSize(new Dimension(900, 600));
-        frame.setMinimumSize(new Dimension(720, 480));
+    SearchIT(TeamChatApp app) {
+        this.app = app;
 
-        // Root (X-axis BoxLayout)
-        JPanel root = new JPanel();
-        root.setLayout(new BoxLayout(root, BoxLayout.X_AXIS));
-        root.add(Box.createHorizontalStrut(50));
+        setLayout(new BoxLayout(this, BoxLayout.Y_AXIS));
 
-        // Main panel (Y-axis)
-        JPanel main = new JPanel();
-        main.setLayout(new BoxLayout(main, BoxLayout.Y_AXIS));
-        main.setAlignmentY(Component.TOP_ALIGNMENT);
-
-        // Title
         JLabel title = new JLabel("Search for a User");
         title.setFont(title.getFont().deriveFont(Font.BOLD, 22f));
         title.setAlignmentX(Component.CENTER_ALIGNMENT);
-        main.add(Box.createVerticalStrut(24));
-        main.add(title);
+        add(Box.createVerticalStrut(24));
+        add(title);
 
-
-        // Search field and button section
         JPanel searchPanel = new JPanel();
         searchPanel.setLayout(new BoxLayout(searchPanel, BoxLayout.Y_AXIS));
         searchPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -46,38 +26,36 @@ public class SearchIT {
         searchField.setAlignmentX(Component.CENTER_ALIGNMENT);
         new TextPrompt("Type to search", searchField);
 
+        JPanel row = new JPanel();
+        row.setLayout(new BoxLayout(row, BoxLayout.X_AXIS));
+
         JButton searchButton = new JButton("Search");
-        searchButton.setAlignmentX(Component.CENTER_ALIGNMENT);
         searchButton.setMaximumSize(new Dimension(200, 40));
+
+        JButton createUser = new JButton("Create a New User");
+        createUser.setMaximumSize(new Dimension(250, 40));
+
+        row.add(searchButton);
+        row.add(Box.createHorizontalStrut(12));
+        row.add(createUser);
 
         searchPanel.add(searchField);
         searchPanel.add(Box.createVerticalStrut(12));
-        searchPanel.add(searchButton);
+        searchPanel.add(row);
         searchPanel.add(Box.createVerticalGlue());
 
-        main.add(searchPanel);
-        main.add(Box.createVerticalGlue());
+        add(searchPanel);
+        add(Box.createVerticalGlue());
 
-        // Add main to root
-        root.add(main);
-        root.add(Box.createHorizontalGlue());
-
-        frame.setContentPane(root);
-        frame.pack();
-        frame.setLocationRelativeTo(null);
-        frame.setVisible(true);
-
-        // Search action logic placeholder
         searchButton.addActionListener(e -> {
             String query = searchField.getText().trim();
             if (query.isEmpty()) {
-                JOptionPane.showMessageDialog(frame, "Enter text to search.");
-                // No action taken for empty query
+                JOptionPane.showMessageDialog(this, "Enter text to search.");
             } else {
-                JOptionPane.showMessageDialog(frame, "Searching for: " + query);
-                // Implement actual search logic here
-                // searchResult = new SearchChat(query);
+                app.openITChat(query, new String[]{ "(IT view)", "msg 1", "msg 2" });
             }
         });
+
+        createUser.addActionListener(e -> app.showCreateUser());
     }
 }
