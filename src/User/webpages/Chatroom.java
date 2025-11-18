@@ -51,6 +51,8 @@ class Chatroom extends JPanel {
             if (text.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "No message detected.");
             } else {
+                //Message log to send to server would be created here
+                //Message msg = new Message(app.getCurrentUser(), title.getText(), text);
                 appendMessage("You: " + text);
                 sendMessageTf.setText("");
                 revalidate();

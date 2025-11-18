@@ -15,6 +15,9 @@ public class TeamChatApp extends JFrame {
     private final JPanel root = new JPanel(cards);
 
     private boolean isIT = false; // determines if user is IT
+    //private User currentUser;
+    //this is to keep track of the logged in user, username, password, isIT, etc.
+    //User getCurrentUser() { return currentUser; }
 
     private Login login;
     private SearchChat searchChat;

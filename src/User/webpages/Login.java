@@ -54,6 +54,15 @@ class Login extends JPanel {
                 JOptionPane.showMessageDialog(this, "Please enter both username and password.");
             } else {
                 app.setIT(itCheck.isSelected());
+                //LoginRequest loginReq = new LoginRequest(user, password);
+                //implement login logic here, currently always successful
+                /*
+                 * if (loginReq.isSuccessful()) {
+                 * app.showSearchChat();
+                 * } else {
+                 * JOptionPane.showMessageDialog(this, "Login failed. Please check your credentials.");
+                 * }
+                 */
                 app.showSearchChat(); // always go to SearchChat
             }
         });
