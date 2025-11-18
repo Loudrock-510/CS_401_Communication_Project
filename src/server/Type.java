@@ -5,6 +5,7 @@ public enum Type {
 	MESSAGES,
 	USERS,
 	LOGIN,
-	ERROR
+	ERROR,
+	LOGOUT
 }
 
