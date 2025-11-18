@@ -9,7 +9,7 @@ import java.util.concurrent.*; //package for multithreading (ExecutorService, Th
 //import ClientHandler
 //import User
 //import Log
-//import Messages
+//import Message
 
 public class Server {
 	//lists stored in mem for now
@@ -17,7 +17,7 @@ public class Server {
 	private List<DirectMessage> directChats = new ArrayList<>();
 	private List<GroupMessage> groupChats = new ArrayList<>();
 	private List<Log> logs = new ArrayList<>();
-	private List<Messages> masterLog = new ArrayList<>(); // all msgs sent thru server
+	private List<Message> masterLog = new ArrayList<>(); // all msgs sent thru server
 	
 	private ServerSocket serverSocket;
 	
@@ -130,7 +130,7 @@ public class Server {
 		return users;
 	}
 	
-	public List<Messages> getMasterLog(){
+	public List<Message> getMasterLog(){
 		return masterLog;
 	}
 	
