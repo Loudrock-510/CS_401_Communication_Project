@@ -30,4 +30,12 @@ public class Message {
 	public List<String> getRecipients() {
 		return recipients;
 	}
+	public String toString() {
+		String s = "Sent at: " + timestamp + ", Sender: " + sender + "\nMessage Content: " + message + "\nRecipients: ";
+		for (int i = 0; i < recipients.length()-1; i++) {
+			s += recipients[i] + ", "
+		}
+		s += recipients[recipients.length() - 1];
+		return s;
+	}
 }
