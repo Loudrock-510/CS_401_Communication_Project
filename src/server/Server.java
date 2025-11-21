@@ -19,6 +19,9 @@ public class Server {
 	private List<Log> logs = new ArrayList<>();
 	private List<Message> masterLog = new ArrayList<>(); // all msgs sent thru server
 	
+	private Boolean modified; //UPDATE TO TRUE ANY TIME ADDING MESSAGES TO directChats OR groupChats********
+	private final String sourceName = "AllChats.txt"; //filename to write messages to
+	
 	private ServerSocket serverSocket;
 	
 	//mutithreading and client management
@@ -32,6 +35,7 @@ public class Server {
 	
 	//constructor
 	public Server(int port) {
+		modified = false;
 		try {
 			serverSocket = new ServerSocket(port);
 			
@@ -151,6 +155,32 @@ public class Server {
 
 	public String toString() {
 		
+	}
+
+	private void saveMsgs() {
+		String buf = "";
+		File file = new File(sourceName);
+		try {
+			FileWriter fw = new FileWriter(file);
+			fw.write("-----DIRECT MESSAGES-----\n\n");
+			for (int i = 0; i < directChats.length; i++) {
+				buf = directChats[i].toString();
+				fw.write(buf + "\n\n");
+			}
+			fw.write("-----GROUP CHATS-----\n\n");
+			for (int i = 0; i < groupChats.length; i++) {
+				buf = groupChats[i].toString();
+				fw.write(buf + "\n\n");
+			}
+			fw.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			//System.out.println("IO filewriter error");
+			JOptionPane.showMessageDialog(null, "IO filewriter error");
+			//e.printStackTrace();
+			return;
+		}
+		modified = false;
 	}
 	
 	//driver
