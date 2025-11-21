@@ -31,7 +31,7 @@ public class PacketHandler {
      * ********************************************************
      */
     //THIS ALL GOES IN CLIENT AND SERVER
-    private void handlePacket(Packet packet) {
+    private void handlePacket(Packet packet) { //STUB: never actually returns anything?
         switch (packet.getType()) {
             case USERS -> handleUsers(packet);
             case MESSAGES -> handleMessages(packet);
