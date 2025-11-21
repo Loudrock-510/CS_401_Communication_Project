@@ -148,6 +148,10 @@ public class Server {
 			System.err.println("err shutting down server: " + e.getMessage());
 		}
 	}
+
+	public String toString() {
+		
+	}
 	
 	//driver
 	public static void main(String[] args) {
