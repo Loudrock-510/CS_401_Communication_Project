@@ -153,8 +153,13 @@ public class Server {
 		}
 	}
 
-	public String toString() {
-		
+	public String toString(List<Message> msgs) {
+		String s = "";
+		for (int i = 0; i < msgs.length()-1; i++) {
+			s += msgs[i].toString() + "\n\n";
+		}
+		s += msgs[msgs.length()-1].toString();
+		return s;
 	}
 
 	private void saveMsgs() {
