@@ -5,11 +5,11 @@ import java.net.*;
 import java.util.*;
 import java.util.concurrent.*; //package for multithreading (ExecutorService, ThreadPool, ConcurrentHashMap)
 
-//import Packet;
-//import ClientHandler
-//import User
-//import Log
-//import Message
+import server.Packet;
+import server.ClientHandler;
+import server.User;
+import server.Log;
+import server.Message;
 
 public class Server {
 	//lists stored in mem for now
@@ -87,7 +87,7 @@ public class Server {
 	}
 	
 	//add new client to activeClients map when they login
-	public synchronized void registeredClient(User u, Sockets s) {
+	public synchronized void registeredClient(User u, Socket s) {
 		activeClients.put(u,s);
 		System.out.println("Registered: " + u.getUsername());
 	}
@@ -101,7 +101,7 @@ public class Server {
 	//login verification hceck if username and pass match any known user
 	public synchronized boolean verifyLogin(String username, String password) {
 		for(User u : users) {
-			if(u.getUsername().equals(username) && u.getPassword.equals(password)) {
+			if(u.getUsername().equals(username) && u.getPassword().equals(password)) {
 				return true; //found matching
 			}
 		}
