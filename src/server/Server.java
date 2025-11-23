@@ -12,7 +12,7 @@ import server.Log;
 import server.Message;
 
 public class Server {
-	//lists stored in mem for now
+	//lists stored in mem for now 
 	private List<User> users = new ArrayList<>();
 	private List<DirectMessage> directChats = new ArrayList<>();
 	private List<Group> groupChats = new ArrayList<>();
