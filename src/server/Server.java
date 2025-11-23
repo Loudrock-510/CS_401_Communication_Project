@@ -187,6 +187,28 @@ public class Server {
 		}
 		modified = false;
 	}
+
+	public String loadData(String filename) {
+		sourceName = filename;
+		String buf = "";
+		try {
+		File file = new File(filename);
+		Scanner scan = new Scanner(file);
+		while (scan.hasNextLine()) {
+			buf += scan.nextLine() + '\n';
+		}
+		scan.close();
+		} catch (FileNotFoundException e) {
+			JOptionPane.showMessageDialog(null, "File not found!");
+			return;
+		}
+		modified = false;
+	}
+
+	private void loadMsgs() {
+		String buf = "";
+		
+	}
 	
 	//driver
 	public static void main(String[] args) {
