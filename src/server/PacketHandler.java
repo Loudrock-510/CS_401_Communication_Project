@@ -6,11 +6,7 @@ import java.util.List;
 public class PacketHandler {
     private Client client;
     private Server server;
-    public PacketHandler(Client client) {
-        this.client = client;
-    }
-    public PacketHandler(Server server) {
-        this.server = server;
+    public PacketHandler() {
     }
     
     /*
@@ -31,7 +27,7 @@ public class PacketHandler {
      * ********************************************************
      */
     //THIS ALL GOES IN CLIENT AND SERVER
-    private void handlePacket(Packet packet) { //STUB: never actually returns anything?
+    public void handlePacket(Packet packet) {
         switch (packet.getType()) {
             case USERS -> handleUsers(packet);
             case MESSAGES -> handleMessages(packet);
