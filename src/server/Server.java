@@ -15,7 +15,7 @@ public class Server {
 	//lists stored in mem for now
 	private List<User> users = new ArrayList<>();
 	private List<DirectMessage> directChats = new ArrayList<>();
-	private List<GroupMessage> groupChats = new ArrayList<>();
+	private List<Group> groupChats = new ArrayList<>();
 	private List<Log> logs = new ArrayList<>();
 	private List<Message> masterLog = new ArrayList<>(); // all msgs sent thru server
 	
