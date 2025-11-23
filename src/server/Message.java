@@ -32,10 +32,10 @@ public class Message {
 	}
 	public String toString() {
 		String s = "Sent at: " + timestamp + ", Sender: " + sender + "\nMessage Content: " + message + "\nRecipients: ";
-		for (int i = 0; i < recipients.length()-1; i++) {  //used newlines to break up long messages/recipients
-			s += recipients[i] + ", "
+		for (int i = 0; i < recipients.size()-1; i++) {  //used newlines to break up long messages/recipients
+			s += recipients.get(i) + ", ";
 		}
-		s += recipients[recipients.length() - 1];
+		s += recipients.get(recipients.size() - 1);
 		return s;
 	}
 }
