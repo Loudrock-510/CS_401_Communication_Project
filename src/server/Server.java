@@ -5,6 +5,8 @@ import java.net.*;
 import java.util.*;
 import java.util.concurrent.*; //package for multithreading (ExecutorService, ThreadPool, ConcurrentHashMap)
 
+import javax.swing.JOptionPane;
+
 import server.Packet;
 import server.ClientHandler;
 import server.User;
@@ -155,10 +157,10 @@ public class Server {
 
 	public String toString(List<Message> msgs) {
 		String s = "";
-		for (int i = 0; i < msgs.length()-1; i++) {
-			s += msgs[i].toString() + "\n\n";
+		for (int i = 0; i < msgs.size()-1; i++) {
+			s += msgs.get(i).toString() + "\n\n";
 		}
-		s += msgs[msgs.length()-1].toString();
+		s += msgs.get(msgs.size()-1).toString();
 		return s;
 	}
 
@@ -168,13 +170,13 @@ public class Server {
 		try {
 			FileWriter fw = new FileWriter(file);
 			fw.write("-----DIRECT MESSAGES-----\n\n");
-			for (int i = 0; i < directChats.length; i++) {
-				buf = directChats[i].toString();
+			for (int i = 0; i < directChats.size(); i++) {
+				buf = directChats.get(i).toString();
 				fw.write(buf + "\n\n");
 			}
 			fw.write("-----GROUP CHATS-----\n\n");
-			for (int i = 0; i < groupChats.length; i++) {
-				buf = groupChats[i].toString();
+			for (int i = 0; i < groupChats.size(); i++) {
+				buf = groupChats.get(i).toString();
 				fw.write(buf + "\n\n");
 			}
 			fw.close();
@@ -189,7 +191,6 @@ public class Server {
 	}
 
 	public String loadData(String filename) {
-		sourceName = filename;
 		String buf = "";
 		try {
 		File file = new File(filename);
@@ -200,9 +201,9 @@ public class Server {
 		scan.close();
 		} catch (FileNotFoundException e) {
 			JOptionPane.showMessageDialog(null, "File not found!");
-			return;
 		}
 		modified = false;
+		return buf;
 	}
 
 	private void loadMsgs() {
