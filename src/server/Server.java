@@ -20,7 +20,7 @@ public class Server {
 	private List<Message> masterLog = new ArrayList<>(); // all msgs sent thru server
 	
 	private Boolean modified; //UPDATE TO TRUE ANY TIME ADDING MESSAGES TO directChats OR groupChats********
-	private final String sourceName = "AllChats.txt"; //filename to write messages to
+	private final String msgsFile = "AllChats.txt"; //filename to write messages to
 	
 	private ServerSocket serverSocket;
 	
@@ -164,19 +164,29 @@ public class Server {
 
 	private void saveMsgs() {
 		String buf = "";
-		File file = new File(sourceName);
+		File file = new File(msgsFile);
+		if(file.delete()) 
+    		file.createNewFile();
+		else {
+    		throw new Exception("File couldn't be cleared!");
+			return;
+		}
 		try {
 			FileWriter fw = new FileWriter(file);
-			fw.write("-----DIRECT MESSAGES-----\n\n");
-			for (int i = 0; i < directChats.length; i++) {
+			fw.write("-----DIRECT MESSAGES-----\n\n~");
+			for (int i = 0; i < directChats.length-1; i++) {
 				buf = directChats[i].toString();
 				fw.write(buf + "\n\n");
 			}
-			fw.write("-----GROUP CHATS-----\n\n");
-			for (int i = 0; i < groupChats.length; i++) {
+			buf = directChats[directChats.length-1].toString();
+			fw.write(buf);
+			fw.write("~\n\n----GROUP CHATS-----\n\n~");
+			for (int i = 0; i < groupChats.length-1; i++) {
 				buf = groupChats[i].toString();
 				fw.write(buf + "\n\n");
 			}
+			buf = groupChats[groupChats.length-1].toString();
+			fw.write(buf);
 			fw.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -189,7 +199,7 @@ public class Server {
 	}
 
 	public String loadData(String filename) {
-		sourceName = filename;
+		msgsFile = filename;
 		String buf = "";
 		try {
 		File file = new File(filename);
@@ -198,16 +208,34 @@ public class Server {
 			buf += scan.nextLine() + '\n';
 		}
 		scan.close();
+			return buf;
 		} catch (FileNotFoundException e) {
 			JOptionPane.showMessageDialog(null, "File not found!");
-			return;
+			return "\nLOADING ERROR\n";
 		}
-		modified = false;
 	}
 
 	private void loadMsgs() {
-		String buf = "";
+		String s = loadData(msgsFile);
+		String dms = s.split('~')[1];
+		String groupchats = s.split('~')[3];
+		int lastIn = 0;
 		
+		for (int i = 0; i < dms.length() - dms.replace('\n', "").length(); i++) {
+			directChats[i] = dms.split('\n')[i];
+			lastIn = i;
+		}
+		if (lastIn > directChats.length() - 1) {
+			for (int i = 0; i < directChats.length(); i++) {
+				directChats.remove(i);
+			}
+		}
+		for (int i = 0; i < dms.length() - dms.replace('\n', "").length(); i++) {
+			directChats[i] = dms.split('\n')[i];
+			lastIn = i;
+		}
+		
+		modified = false;
 	}
 	
 	//driver
