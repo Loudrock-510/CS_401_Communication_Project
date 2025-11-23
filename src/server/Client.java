@@ -154,8 +154,8 @@ public class Client {
 		socket.close();
 	}
 	
-	public void signIn(Packet pack) { //STUB: plug into while loop
-		if (pack.getType != Type.LOGIN) {
+	public void signIn(Packet pack) throws Exception { //STUB: plug into while loop
+		if (pack.getType() != Type.LOGIN) {
 			throw new Exception("signIn() had invalid type!");
 			return;
 		}
