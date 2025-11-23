@@ -44,7 +44,7 @@ public class PacketHandler {
     }
     
     //added handle method public so it can grab handlePacket method since its private
-    public void handle(Packet packet) {
+    public void handle(Packet packet, ClientHandler handler) {
     	handlePacket(packet);
     }
     
