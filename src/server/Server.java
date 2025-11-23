@@ -5,19 +5,22 @@ import java.net.*;
 import java.util.*;
 import java.util.concurrent.*; //package for multithreading (ExecutorService, ThreadPool, ConcurrentHashMap)
 
-//import Packet;
-//import ClientHandler
-//import User
-//import Log
-//import Message
+import server.Packet;
+import server.ClientHandler;
+import server.User;
+import server.Log;
+import server.Message;
 
 public class Server {
 	//lists stored in mem for now
 	private List<User> users = new ArrayList<>();
 	private List<DirectMessage> directChats = new ArrayList<>();
-	private List<GroupMessage> groupChats = new ArrayList<>();
+	private List<Group> groupChats = new ArrayList<>();
 	private List<Log> logs = new ArrayList<>();
 	private List<Message> masterLog = new ArrayList<>(); // all msgs sent thru server
+	
+	private Boolean modified; //UPDATE TO TRUE ANY TIME ADDING MESSAGES TO directChats OR groupChats********
+	private final String sourceName = "AllChats.txt"; //filename to write messages to
 	
 	private ServerSocket serverSocket;
 	
@@ -32,6 +35,7 @@ public class Server {
 	
 	//constructor
 	public Server(int port) {
+		modified = false;
 		try {
 			serverSocket = new ServerSocket(port);
 			
@@ -87,7 +91,7 @@ public class Server {
 	}
 	
 	//add new client to activeClients map when they login
-	public synchronized void registeredClient(User u, Sockets s) {
+	public synchronized void registeredClient(User u, Socket s) {
 		activeClients.put(u,s);
 		System.out.println("Registered: " + u.getUsername());
 	}
@@ -101,7 +105,7 @@ public class Server {
 	//login verification hceck if username and pass match any known user
 	public synchronized boolean verifyLogin(String username, String password) {
 		for(User u : users) {
-			if(u.getUsername().equals(username) && u.getPassword.equals(password)) {
+			if(u.getUsername().equals(username) && u.getPassword().equals(password)) {
 				return true; //found matching
 			}
 		}
@@ -147,6 +151,63 @@ public class Server {
 		}catch(IOException e) {
 			System.err.println("err shutting down server: " + e.getMessage());
 		}
+	}
+
+	public String toString(List<Message> msgs) {
+		String s = "";
+		for (int i = 0; i < msgs.length()-1; i++) {
+			s += msgs[i].toString() + "\n\n";
+		}
+		s += msgs[msgs.length()-1].toString();
+		return s;
+	}
+
+	private void saveMsgs() {
+		String buf = "";
+		File file = new File(sourceName);
+		try {
+			FileWriter fw = new FileWriter(file);
+			fw.write("-----DIRECT MESSAGES-----\n\n");
+			for (int i = 0; i < directChats.length; i++) {
+				buf = directChats[i].toString();
+				fw.write(buf + "\n\n");
+			}
+			fw.write("-----GROUP CHATS-----\n\n");
+			for (int i = 0; i < groupChats.length; i++) {
+				buf = groupChats[i].toString();
+				fw.write(buf + "\n\n");
+			}
+			fw.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			//System.out.println("IO filewriter error");
+			JOptionPane.showMessageDialog(null, "IO filewriter error");
+			//e.printStackTrace();
+			return;
+		}
+		modified = false;
+	}
+
+	public String loadData(String filename) {
+		sourceName = filename;
+		String buf = "";
+		try {
+		File file = new File(filename);
+		Scanner scan = new Scanner(file);
+		while (scan.hasNextLine()) {
+			buf += scan.nextLine() + '\n';
+		}
+		scan.close();
+		} catch (FileNotFoundException e) {
+			JOptionPane.showMessageDialog(null, "File not found!");
+			return;
+		}
+		modified = false;
+	}
+
+	private void loadMsgs() {
+		String buf = "";
+		
 	}
 	
 	//driver

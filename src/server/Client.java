@@ -7,6 +7,9 @@ import java.time.LocalDateTime;
 import java.io.*;
 
 public class Client {
+	private ObjectOutputStream objectOutputStream;
+	private ObjectInputStream objectInputStream;
+	private Boolean loggedIn; //true if login is successful
 	
 	public static void main(String[] args) throws IOException, ClassNotFoundException {
 		
@@ -133,7 +136,7 @@ public class Client {
 		//Packets.add(new Packet(msg, Type.TEXT));
 		newM = new Packet(Type.MESSAGES, msg, messages);
 		objectOutputStream.writeObject(newM);
-		newM = (Packet) in.readObject();
+		newM = (Packet) objectInputStream.readObject();
 		if (newM.getStatus().equals("LOGOUT"))
 			newM = new Packet(Type.LOGOUT, "", null);
 		 if (newM.getType() == Type.LOGOUT) {
@@ -149,5 +152,24 @@ public class Client {
 		System.out.println("Client successfully logged out");
 		System.out.println("Closing socket");
 		socket.close();
+	}
+	
+	public void signIn(Packet pack) { //STUB: plug into while loop
+		if (pack.getType != Type.LOGIN) {
+			throw new Exception("signIn() had invalid type!");
+			return;
+		}
+		objectOutputStream.writeObject(pack); //send login request
+		
+		Packet validation = (Packet) objectInputStream.readObject();
+		if (validation.getType() != Type.LOGIN) {
+			throw new Exception("Server sent invalid type!");
+			return;
+		}
+		if (!validation.getStatus().equals("success")) {
+			throw new Exception("Login unsuccessful");
+			return;
+		}
+		loggedIn = true;
 	}
 }

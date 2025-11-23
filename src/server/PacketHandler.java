@@ -38,6 +38,12 @@ public class PacketHandler {
             default -> System.out.println("Unknown packet type: " + packet.getType());
         }
     }
+    
+    //added handle method public so it can grab handlePacket method since its private
+    public void handle(Packet packet, ClientHandler handler) {
+    	handlePacket(packet);
+    }
+    
     /*
      * *********************************************************
      * USER PACKET HANDLER
