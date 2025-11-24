@@ -15,11 +15,11 @@ public class Server {
 	//lists stored in mem for now 
 	private List<User> users = new ArrayList<>();
 	private List<DirectMessage> directChats = new ArrayList<>();
-	private List<Group> groupChats = new ArrayList<>();
+	private List<Group> groups = new ArrayList<>();
 	private List<Log> logs = new ArrayList<>();
 	private List<Message> masterLog = new ArrayList<>(); // all msgs sent thru server
 	
-	private Boolean modified; //UPDATE TO TRUE ANY TIME ADDING MESSAGES TO directChats OR groupChats********
+	private Boolean modified; //UPDATE TO TRUE ANY TIME ADDING MESSAGES TO directChats OR groups********
 	private final String msgsFile = "AllChats.txt"; //filename to write messages to
 	
 	private ServerSocket serverSocket;
@@ -181,11 +181,11 @@ public class Server {
 			buf = directChats[directChats.length-1].toString();
 			fw.write(buf);
 			fw.write("~\n\n----GROUP CHATS-----\n\n~");
-			for (int i = 0; i < groupChats.length-1; i++) {
-				buf = groupChats[i].toString();
+			for (int i = 0; i < groups.length-1; i++) {
+				buf = groups[i].toString();
 				fw.write(buf + "\n\n");
 			}
-			buf = groupChats[groupChats.length-1].toString();
+			buf = groups[groups.length-1].toString();
 			fw.write(buf);
 			fw.close();
 		} catch (IOException e) {
@@ -218,10 +218,10 @@ public class Server {
 	private void loadMsgs() {
 		String s = loadData(msgsFile);
 		String dms = s.split('~')[1];
-		String groupchats = s.split('~')[3];
+		String groups = s.split('~')[3];
 		int lastIn = 0;
 		
-		for (int i = 0; i < dms.length() - dms.replace('\n', "").length(); i++) {
+		for (int i = 0; i < (dms.length() - dms.replace('\n', "").length()); i++) {
 			directChats[i] = dms.split('\n')[i];
 			lastIn = i;
 		}
@@ -230,9 +230,14 @@ public class Server {
 				directChats.remove(i);
 			}
 		}
-		for (int i = 0; i < dms.length() - dms.replace('\n', "").length(); i++) {
-			directChats[i] = dms.split('\n')[i];
+		for (int i = 0; i < (groups.length() - groups.replace('\n', "").length()); i++) {
+			groups[i] = groups.split('\n')[i];
 			lastIn = i;
+		}
+		if (lastIn > groups.length() - 1) {
+			for (int i = 0; i < groups.length(); i++) {
+				groups.remove(i);
+			}
 		}
 		
 		modified = false;
