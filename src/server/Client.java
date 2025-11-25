@@ -21,11 +21,11 @@ public class Client {
 		
 		//************************************************************
 		//			CONNECT TO SERVER
-		// uses port 1776 and grab host from device
+		// uses port 12345 and grab host from device
 		//
 		//************************************************************
 		//STUB: REMOVED ALL CONSOLE AND MADE STATIC PORT AND GRAB HOST.
-		int port = 1776;
+		int port = 12345;
 		String host = InetAddress.getLocalHost().getHostName();
 		// Connect to the ServerSocket at host:port
 		Socket socket = new Socket(host, port);
@@ -135,13 +135,13 @@ public class Client {
 		msg = sc.next();
 		//Packets.add(new Packet(msg, Type.TEXT));
 		newM = new Packet(Type.MESSAGES, msg, messages);
-		objectOutputStream.writeObject(newM);
-		newM = (Packet) objectInputStream.readObject();
+		out.writeObject(newM);
+		newM = (Packet) in.readObject();
 		if (newM.getStatus().equals("LOGOUT"))
 			newM = new Packet(Type.LOGOUT, "", null);
 		 if (newM.getType() == Type.LOGOUT) {
 			 System.out.println("Logging out...");
-			 objectOutputStream.writeObject(new Packet(Type.LOGOUT, "logout", null));
+			 out.writeObject(new Packet(Type.LOGOUT, "logout", null));
 			 break;
 		 }
 		 else if (newM.getType() == Type.MESSAGES) {
