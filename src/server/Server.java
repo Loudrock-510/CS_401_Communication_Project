@@ -5,6 +5,8 @@ import java.net.*;
 import java.util.*;
 import java.util.concurrent.*; //package for multithreading (ExecutorService, ThreadPool, ConcurrentHashMap)
 
+import javax.swing.JOptionPane;
+
 import server.Packet;
 import server.ClientHandler;
 import server.User;
@@ -155,10 +157,10 @@ public class Server {
 
 	public String toString(List<Message> msgs) {
 		String s = "";
-		for (int i = 0; i < msgs.length()-1; i++) {
-			s += msgs[i].toString() + "\n\n";
+		for (int i = 0; i < msgs.size()-1; i++) {
+			s += msgs.get(i).toString() + "\n\n";
 		}
-		s += msgs[msgs.length()-1].toString();
+		s += msgs.get(msgs.size()-1).toString();
 		return s;
 	}
 
@@ -173,16 +175,14 @@ public class Server {
 		}
 		try {
 			FileWriter fw = new FileWriter(file);
-			fw.write("-----DIRECT MESSAGES-----\n\n~");
-			for (int i = 0; i < directChats.length-1; i++) {
-				buf = directChats[i].toString();
+			fw.write("-----DIRECT MESSAGES-----\n\n");
+			for (int i = 0; i < directChats.size(); i++) {
+				buf = directChats.get(i).toString();
 				fw.write(buf + "\n\n");
 			}
-			buf = directChats[directChats.length-1].toString();
-			fw.write(buf);
-			fw.write("~\n\n----GROUP CHATS-----\n\n~");
-			for (int i = 0; i < groups.length-1; i++) {
-				buf = groups[i].toString();
+			fw.write("-----GROUP CHATS-----\n\n");
+			for (int i = 0; i < groupChats.size(); i++) {
+				buf = groupChats.get(i).toString();
 				fw.write(buf + "\n\n");
 			}
 			buf = groups[groups.length-1].toString();
