@@ -54,6 +54,7 @@ class CreateUser extends JPanel {
             } else {
                 JOptionPane.showMessageDialog(this, "Created user: " + u + ".\n(Default password: " + " assigned.)");
                 //implement user creation logic here, are we randomizing passwords?
+                //What if username already exists?
                 //User newUser = new User(u, generateRandomPassword());
                 app.showSearchIT();
             }
