@@ -1,6 +1,8 @@
 package server;
 
-public class LoginInfo {
+import java.io.Serializable;
+
+public class LoginInfo implements Serializable{
     String username;
     String password;
 

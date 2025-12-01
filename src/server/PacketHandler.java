@@ -1,3 +1,4 @@
+
 package server;
 
 import java.util.ArrayList;
@@ -43,7 +44,10 @@ public class PacketHandler {
 
     private Object handleLogout(Packet packet) {
         // close thread
-        return null;
+    	//************************
+    	//Test console print
+    	System.out.println("SERVER: Recevied LOGOUT Packet");
+       return null;
     }
 
     // added handle method public so it can grab handlePacket method since its
@@ -62,7 +66,9 @@ public class PacketHandler {
      */
     private Object handleUsers(Packet packet) {
         List<Object> content = packet.getcontent();
-
+      //*************************************
+    	//Test console print
+        System.out.println("SERVER: Received USERS packet");
         if (content.isEmpty()) {
             // remove later. used for debugging
             System.out.println("No users in packet.");
@@ -80,6 +86,9 @@ public class PacketHandler {
             }
             return users; // return the list of users
         }
+        
+        
+
     }
 
     /*
@@ -99,6 +108,7 @@ public class PacketHandler {
 
         if (content.size() == 1) {
             String message = content.get(0).toString();
+            System.out.println("Server received message: " + message); //test for if server received packet
             return message; // return one message
         } else {
             List<String> messages = new ArrayList<>();

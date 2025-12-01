@@ -34,15 +34,16 @@ public class ClientHandler implements Runnable{
 	public ClientHandler(Socket socket, Server server) {
 		this.socket = socket;
 		this.server = server;
-		this.handler = new PacketHandler(server); //server side packet handler
+		this.handler = new PacketHandler(); //server side packet handler
 	}
 	
 	@Override
 	public void run() {
 		try{
 			//create stream
-			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
-			ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
+			this.out = new ObjectOutputStream(socket.getOutputStream());
+			this.out.flush();
+			this.in = new ObjectInputStream(socket.getInputStream());
 			
 			//MAIN LISTEN LOOP
 			while(true) {
