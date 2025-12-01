@@ -31,6 +31,31 @@ public class Client {
 		// ************************************************************
 		out = new ObjectOutputStream(socket.getOutputStream());
 		in = new ObjectInputStream(socket.getInputStream());
+		
+		//*******************************************************************
+		//TESTING PACKETS
+		
+		//TEST PACKET
+			Packet test = new Packet(Type.MESSAGES, "REQUEST", List.of("Testing"));
+			out.writeObject(test);
+			out.flush();
+			System.out.println("Client sent test packet");
+				
+		//TEST LOGIN
+			Client.sendLogin("Brian", "1234");
+			System.out.println("Client sent LOGIN");
+			
+		//TEST USERS
+			Client clientObj = new Client();
+			clientObj.sendUser("newUser", "password", false);
+			System.out.println("Client sent USERS packet");
+			
+		//TEST LOGOUt
+			Client.sendLogout();
+			System.out.println("Client sent LOGOUT");
+		
+		//**************	************	
+		
 		Thread listener = new Thread(() -> {
 			try {
 				while (true) {
