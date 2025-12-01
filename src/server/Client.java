@@ -114,7 +114,7 @@ public class Client {
 	public static void sendLogout() throws IOException {
 		List<LoginInfo> empty = new ArrayList<>();
 		Packet logoutRequest = new Packet(Type.LOGOUT, "REQUEST", List.of(empty));
-			// send packet
+		// send packet
 		out.writeObject(logoutRequest);
 		// clears
 		out.flush();
