@@ -5,6 +5,8 @@ import java.net.*;
 import java.util.*;
 import java.util.concurrent.*; //package for multithreading (ExecutorService, ThreadPool, ConcurrentHashMap)
 
+import javax.swing.JOptionPane;
+
 import server.Packet;
 import server.ClientHandler;
 import server.User;
@@ -12,15 +14,15 @@ import server.Log;
 import server.Message;
 
 public class Server {
-	//lists stored in mem for now
+	//lists stored in mem for now 
 	private List<User> users = new ArrayList<>();
 	private List<DirectMessage> directChats = new ArrayList<>();
-	private List<Group> groupChats = new ArrayList<>();
+	private List<Group> groups = new ArrayList<>();
 	private List<Log> logs = new ArrayList<>();
 	private List<Message> masterLog = new ArrayList<>(); // all msgs sent thru server
 	
-	private Boolean modified; //UPDATE TO TRUE ANY TIME ADDING MESSAGES TO directChats OR groupChats********
-	private final String sourceName = "AllChats.txt"; //filename to write messages to
+	private Boolean modified; //UPDATE TO TRUE ANY TIME ADDING MESSAGES TO directChats OR groups********
+	private final String msgsFile = "AllChats.txt"; //filename to write messages to
 	
 	private ServerSocket serverSocket;
 	
@@ -155,28 +157,36 @@ public class Server {
 
 	public String toString(List<Message> msgs) {
 		String s = "";
-		for (int i = 0; i < msgs.length()-1; i++) {
-			s += msgs[i].toString() + "\n\n";
+		for (int i = 0; i < msgs.size()-1; i++) {
+			s += msgs.get(i).toString() + "\n\n";
 		}
-		s += msgs[msgs.length()-1].toString();
+		s += msgs.get(msgs.size()-1).toString();
 		return s;
 	}
 
 	private void saveMsgs() {
 		String buf = "";
-		File file = new File(sourceName);
+		File file = new File(msgsFile);
+		if(file.delete()) 
+    		file.createNewFile();
+		else {
+    		throw new Exception("File couldn't be cleared!");
+			return;
+		}
 		try {
 			FileWriter fw = new FileWriter(file);
 			fw.write("-----DIRECT MESSAGES-----\n\n");
-			for (int i = 0; i < directChats.length; i++) {
-				buf = directChats[i].toString();
+			for (int i = 0; i < directChats.size(); i++) {
+				buf = directChats.get(i).toString();
 				fw.write(buf + "\n\n");
 			}
 			fw.write("-----GROUP CHATS-----\n\n");
-			for (int i = 0; i < groupChats.length; i++) {
-				buf = groupChats[i].toString();
+			for (int i = 0; i < groupChats.size(); i++) {
+				buf = groupChats.get(i).toString();
 				fw.write(buf + "\n\n");
 			}
+			buf = groups[groups.length-1].toString();
+			fw.write(buf);
 			fw.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -185,6 +195,51 @@ public class Server {
 			//e.printStackTrace();
 			return;
 		}
+		modified = false;
+	}
+
+	public String loadData(String filename) {
+		msgsFile = filename;
+		String buf = "";
+		try {
+		File file = new File(filename);
+		Scanner scan = new Scanner(file);
+		while (scan.hasNextLine()) {
+			buf += scan.nextLine() + '\n';
+		}
+		scan.close();
+			return buf;
+		} catch (FileNotFoundException e) {
+			JOptionPane.showMessageDialog(null, "File not found!");
+			return "\nLOADING ERROR\n";
+		}
+	}
+
+	private void loadMsgs() {
+		String s = loadData(msgsFile);
+		String dms = s.split('~')[1];
+		String groups = s.split('~')[3];
+		int lastIn = 0;
+		
+		for (int i = 0; i < (dms.length() - dms.replace('\n', "").length()); i++) {
+			directChats[i] = dms.split('\n')[i];
+			lastIn = i;
+		}
+		if (lastIn > directChats.length() - 1) {
+			for (int i = 0; i < directChats.length(); i++) {
+				directChats.remove(i);
+			}
+		}
+		for (int i = 0; i < (groups.length() - groups.replace('\n', "").length()); i++) {
+			groups[i] = groups.split('\n')[i];
+			lastIn = i;
+		}
+		if (lastIn > groups.length() - 1) {
+			for (int i = 0; i < groups.length(); i++) {
+				groups.remove(i);
+			}
+		}
+		
 		modified = false;
 	}
 	
