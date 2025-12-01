@@ -1,5 +1,6 @@
 package server;
 
+import java.time.LocalDateTime;
 import java.util.*;
 //import User
 //import Message
@@ -21,7 +22,8 @@ public class DirectMessage {
 	   groupUsers.add(recipient.getUsername());
 	   
 	   //initial message create it
-	   Message msg = new Message(sender.getUsername(), initialMessage);
+	   LocalDateTime timestamp = LocalDateTime.now() ;
+		Message msg = new Message(timestamp,initialMessage,sender,List<User> recipient);
 	   //add message to list
 	   messages.add(msg);
    }
