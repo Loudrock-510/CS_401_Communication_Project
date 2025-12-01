@@ -108,8 +108,6 @@ public class Client {
 	}// add server sending a user.
 	// ************************************************************
 	// SENDING LOGOUT
-	//
-	//
 	// ************************************************************
 	public static void sendLogout() throws IOException {
 		List<LoginInfo> empty = new ArrayList<>();

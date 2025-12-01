@@ -27,17 +27,18 @@ public class PacketHandler {
      * ********************************************************
      */
     // THIS ALL GOES IN CLIENT AND SERVER
-    public void handlePacket(Packet packet) {
+    public Object handlePacket(Packet packet) {
         switch (packet.getType()) {
-            case USERS -> handleUsers(packet);
-            case MESSAGES -> handleMessages(packet);
-            case LOGIN -> handleLogin(packet);
-            case ERROR -> handleError(packet);
-            case LOGOUT -> handleLogout(packet);
+            case USERS -> {return handleUsers(packet);}
+            case MESSAGES -> {return handleMessages(packet);}
+            case LOGIN -> {return handleLogin(packet);}
+            case ERROR -> {return handleError(packet);}
+            case LOGOUT -> {return handleLogout(packet);}
 
             // remove later. used for debugging
             default -> System.out.println("Unknown packet type: " + packet.getType());
         }
+        return packet;
     }
 
     private Object handleLogout(Packet packet) {
@@ -119,15 +120,15 @@ public class PacketHandler {
      */
     private LoginInfo handleLogin(Packet packet) {
         List<Object> content = packet.getcontent();
-
-        if (content.size() < 2) { // does not contain a password or login
-            return null;
+        String status = packet.getStatus();
+        if (status == "REQUEST"){
+            if (content.size() < 2) { // does not contain a password or login
+                return null;
+            }
+            String username = content.get(0).toString();
+            String password = content.get(1).toString();
+            return LoginInfo(username, password);
         }
-
-        String username = content.get(0).toString();
-        String password = content.get(1).toString();
-
-        return new LoginInfo(username, password);
     }
 
     /*
@@ -135,7 +136,8 @@ public class PacketHandler {
      * ERROR PACKET HANDLER
      * ******************************************************
      */
-    private void handleError(Packet packet) {
+    private int handleError(Packet packet) {
         System.out.println("Error: " + packet.getcontent().get(0));
+        return 1;
     }
 }
