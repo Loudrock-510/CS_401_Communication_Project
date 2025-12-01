@@ -1,5 +1,6 @@
 package server;
 
+import java.time.LocalDateTime;
 import java.util.*;
 //import Message
 //import User
@@ -24,7 +25,7 @@ public class Group {
 	
 	//constructor new group , sender and recip and inital message
 	
-	public Group(User sender, List<User> recipient, String initialMessage) {
+	public Group(User sender, List<String> recipient, String initialMessage) {
 		this.groupUID = count++;
 		
 		//add sender
@@ -36,7 +37,8 @@ public class Group {
 		}
 		
 		//create initial message
-		Message msg = new Message(sender.getUsername(), initialMessage);
+		LocalDateTime timestamp = LocalDateTime.now() ;
+		Message msg = new Message(timestamp,initialMessage,sender,List<User> recipient);
 		//add it to list
 		messages.add(msg);
 		

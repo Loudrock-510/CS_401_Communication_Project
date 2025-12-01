@@ -33,12 +33,18 @@ public class PacketHandler {
             case MESSAGES -> handleMessages(packet);
             case LOGIN -> handleLogin(packet);
             case ERROR -> handleError(packet);
+            case LOGOUT -> handleLogout(packet);
             
             //remove later. used for debugging
             default -> System.out.println("Unknown packet type: " + packet.getType());
         }
     }
     
+    private Object handleLogout(Packet packet) {
+        // close thread
+       return null;
+    }
+
     //added handle method public so it can grab handlePacket method since its private
     public void handle(Packet packet, ClientHandler handler) {
     	handlePacket(packet);

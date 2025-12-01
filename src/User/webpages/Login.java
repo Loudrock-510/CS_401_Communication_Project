@@ -1,7 +1,11 @@
 package User.webpages;
 
 import java.awt.*;
+import java.io.IOException;
+
 import javax.swing.*;
+
+import server.Client;
 
 class Login extends JPanel {
     private final TeamChatApp app;
@@ -48,12 +52,18 @@ class Login extends JPanel {
         add(Box.createVerticalGlue());
 
         loginButton.addActionListener(e -> {
-            String user = userTextField.getText().trim();
+            String username = userTextField.getText().trim();
             String password = new String(passTextField.getPassword()).trim();
-            if (user.isEmpty() || password.isEmpty()) {
+            if (username.isEmpty() || password.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "Please enter both username and password.");
             } else {
                 app.setIT(itCheck.isSelected());
+                try {
+                    Client.sendLogin(username,password);
+                } catch (IOException e1) {
+                    // TODO Auto-generated catch block
+                    e1.printStackTrace();
+                }
                 //LoginRequest loginReq = new LoginRequest(user, password);
                 //implement login logic here, currently always successful
                 /*
