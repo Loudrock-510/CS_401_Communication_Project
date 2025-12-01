@@ -92,6 +92,21 @@ public class Server {
 		}
 	}
 	
+	//*********
+	//targetting packet to specific client
+	public synchronized void sendToClient(User targetUser, Packet packet) {
+		Socket s = activeClients.get(targetUser);
+		if(s != null && !s.isClosed()) {
+			try {
+				ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
+				out.writeObject(packet);
+				out.flush();
+			}catch (IOException e) {
+				System.err.println("Failed to send packet to: " + targetUser.getUsername());
+			}
+		}
+	}
+	
 	//add new client to activeClients map when they login
 	public synchronized void registeredClient(User u, Socket s) {
 		activeClients.put(u,s);

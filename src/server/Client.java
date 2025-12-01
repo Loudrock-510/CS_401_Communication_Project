@@ -87,7 +87,7 @@ public class Client {
 		List<User> users = new ArrayList<>();
 		User newUser = new User(newUsername, newPassword, isAdmin);
 		users.add(newUser);
-		Packet newUserRequest = new Packet(Type.USERS, "REQUEST", List.of(users));
+		Packet newUserRequest = new Packet(Type.USERS, "REQUEST", List.of(newUser));
 		// send packet
 		out.writeObject(newUserRequest);
 		// clears
