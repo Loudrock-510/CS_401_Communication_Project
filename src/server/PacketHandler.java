@@ -3,6 +3,7 @@ package server;
 
 import java.util.ArrayList;
 import java.util.List;
+import server.*;
 
 public class PacketHandler {
     private Client client;
@@ -137,8 +138,9 @@ public class PacketHandler {
             }
             String username = content.get(0).toString();
             String password = content.get(1).toString();
-            return LoginInfo(username, password);
+            return new LoginInfo(username, password);
         }
+        return null;
     }
 
     /*
