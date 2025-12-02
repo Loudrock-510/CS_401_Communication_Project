@@ -23,7 +23,7 @@ public class DirectMessage {
 	   
 	   //initial message create it
 	   LocalDateTime timestamp = LocalDateTime.now() ;
-		Message msg = new Message(timestamp,initialMessage,sender,List<User> recipient);
+	Message msg = new Message(timestamp,initialMessage,sender,List<User> recipient);
 	   //add message to list
 	   messages.add(msg);
    }
