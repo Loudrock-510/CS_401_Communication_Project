@@ -3,6 +3,12 @@ package User.webpages;
 import java.awt.*;
 import javax.swing.*;
 
+import server.Client;
+import server.Group;
+import server.DirectMessage;
+import server.Message;
+import java.util.List;
+
 public class TeamChatApp extends JFrame {
     public static final String LOGIN = "login";
     public static final String SEARCH_CHAT = "searchChat";
@@ -14,11 +20,8 @@ public class TeamChatApp extends JFrame {
     private final CardLayout cards = new CardLayout();
     private final JPanel root = new JPanel(cards);
 
-    private boolean isIT = false; // determines if user is IT
-    //private User currentUser;
-    //this is to keep track of the logged in user, username, password, isIT, etc.
-    //User getCurrentUser() { return currentUser; }
 
+    private Client client; // Client instance for server communication
     private Login login;
     private SearchChat searchChat;
     private Chatroom chatroom;
@@ -31,6 +34,9 @@ public class TeamChatApp extends JFrame {
         setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         setPreferredSize(new Dimension(900, 600));
         setMinimumSize(new Dimension(720, 480));
+
+        //initialize Client connection in background thread
+        initializeClient();
 
         chatroom = new Chatroom(this);
         chatroomIT = new ChatroomIT(this);
@@ -51,35 +57,158 @@ public class TeamChatApp extends JFrame {
         setLocationRelativeTo(null);
     }
 
-    void showCard(String name) { cards.show(root, name); }
-
-    void setIT(boolean it) {
-        this.isIT = it;
-        refreshITVisibility();
+    /**
+     * Initializes the Client connection to the server in a background thread.
+     * This prevents blocking the GUI during connection.
+     */
+    private void initializeClient() {
+        Thread clientThread = new Thread(() -> {
+            client = Client.createAndConnect();
+            if (client == null) {
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(this,
+                        "Failed to connect to server.\n" +
+                        "Please ensure the server is running on port 12345.",
+                        "Connection Error",
+                        JOptionPane.ERROR_MESSAGE);
+                });
+            } else {
+                //set up callback for group updates IMMEDIATELY after connection
+                client.setGroupUpdateCallback(() -> {
+                    //ensure callback runs on EDT
+                    SwingUtilities.invokeLater(() -> {
+                        //always refresh SearchChat when groups are updated
+                        if (searchChat != null) {
+                            searchChat.refreshGroups();
+                        }
+                        
+                        //if Chatroom is open, update it with the latest group from reseeded list
+                        if (chatroom != null && chatroom.getCurrentGroup() != null) {
+                            Object currentGroup = chatroom.getCurrentGroup();
+                            int currentUID = -1;
+                            boolean isGroup = false;
+                            
+                            if (currentGroup instanceof Group) {
+                                currentUID = ((Group) currentGroup).getGroupUID();
+                                isGroup = true;
+                            } else if (currentGroup instanceof DirectMessage) {
+                                currentUID = ((DirectMessage) currentGroup).getChatUID();
+                                isGroup = false;
+                            }
+                            
+                            if (currentUID >= 0) {
+                                //get latest version from reseeded client groups
+                                Object latestGroup = null;
+                                if (isGroup) {
+                                    latestGroup = client.getGroupById(currentUID);
+                                } else {
+                                    latestGroup = client.getDirectMessageById(currentUID);
+                                }
+                                
+                                if (latestGroup != null) {
+                                    chatroom.updateGroupIfOpen(latestGroup);
+                                }
+                            }
+                        }
+                        
+                        //NOTIFICATION !!! i dont think it works rn as is
+                        //also notify about last updated group if available
+                        Object updatedGroup = client.getLastUpdatedGroup();
+                        if (updatedGroup != null) {
+                            notifyGroupUpdated(updatedGroup);
+                        }
+                    });
+                });
+                
+                //also set up a periodic check to refresh SearchChat if groups arrive
+                //this is a backup in case callback doesn't work
+                Thread refreshCheck = new Thread(() -> {
+                    try {
+                        Thread.sleep(3000); //wait 3 seconds after connection
+                        SwingUtilities.invokeLater(() -> {
+                            if (client != null && client.getMyUser() != null && searchChat != null) {
+                                searchChat.refreshGroups();
+                            }
+                        });
+                    } catch (InterruptedException e) {
+                        //ignore
+                    }
+                });
+                refreshCheck.setDaemon(true);
+                refreshCheck.start();
+            }
+        });
+        clientThread.setDaemon(true);
+        clientThread.start();
     }
 
-    boolean isIT() { return isIT; }
+    //gets the Client instance for server communication.
+    public Client getClient() {
+        return client;
+    }
 
-    /** Refreshes visibility of all IT-only UI elements */
-    private void refreshITVisibility() {
-        if (searchChat != null) searchChat.refreshITVisibility(isIT);
-        if (chatroom != null) chatroom.refreshITVisibility(isIT);
-        if (chatroomIT != null) chatroomIT.refreshITVisibility(isIT);
+    void showCard(String name) { 
+        cards.show(root, name);
+        root.revalidate();
+        root.repaint();
+    }
+
+    //refreshes visibility of all admin-only UI elements
+    private void refreshAdminVisibility() {
+        boolean isAdmin = (client != null && client.getMyUser() != null && client.getMyUser().isAdmin());
+        if (searchChat != null) searchChat.refreshAdminVisibility(isAdmin);
+        if (chatroom != null) chatroom.refreshAdminVisibility(isAdmin);
+        if (chatroomIT != null) chatroomIT.refreshAdminVisibility(isAdmin);
+    }
+    
+    boolean isAdmin() {
+        return (client != null && client.getMyUser() != null && client.getMyUser().isAdmin());
     }
 
     void openUserChat(String otherUser, String[] messages) {
         chatroom.loadConversation(otherUser, messages);
         showCard(CHATROOM);
     }
+    
+    //opens a chatroom with a Group or DirectMessage object
+    void openGroupChat(Object groupObj) {
+        if (groupObj != null) {
+            chatroom.loadGroupConversation(groupObj);
+            showCard(CHATROOM);
+        }
+    }
 
-    void openITChat(String otherUser, String[] messages) {
+    void openITChat(String otherUser, List<Message> messages) {
         chatroomIT.loadConversation(otherUser, messages);
         showCard(CHATROOM_IT);
     }
 
     void showSearchChat() {
-        refreshITVisibility();
+        refreshAdminVisibility();
+        if (searchChat != null) {
+            searchChat.refreshGroups();
+        }
         showCard(SEARCH_CHAT);
+    }
+    
+    
+     //notifies GUI components when a group is updated
+    void notifyGroupUpdated(Object groupObj) {
+        if (groupObj == null) {
+            return;
+        }
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> notifyGroupUpdated(groupObj));
+            return;
+        }
+        //update SearchChat
+        if (searchChat != null) {
+            searchChat.refreshGroups();
+        }
+        //update Chatroom if itss displaying this group
+        if (chatroom != null) {
+            chatroom.updateGroupIfOpen(groupObj);
+        }
     }
 
     void showSearchIT() { showCard(SEARCH_IT); }
