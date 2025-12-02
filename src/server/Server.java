@@ -280,21 +280,22 @@ public class Server {
 		return true;
 	}
 	
-	private void sortMsgs(List<Message> msgs) {
+	private List<Message> sortMsgs(List<Message> gMsgs) {
+		List<Message> msgs = gMsgs;
 		if (msgs.size() < 2)
-			return;
+			return msgs;
 		if (msgs.size() == 2) {
 			if (msgs.get(0).getTimestamp().compareTo(msgs.get(1).getTimestamp()) > 0) {
 				Message temp = msgs.get(1);
 				msgs.set(1, msgs.get(0));
 				msgs.set(0, temp);
-				return;
+				return msgs;
 			}
 			else if (msgs.get(0).getTimestamp().compareTo(msgs.get(1).getTimestamp()) == 0) {
-				return;
+				return msgs;
 			}
 			else //first comes before second; do nothing
-				return;
+				return msgs;
 		}
 		
 		//msgs.size() > 2, so:
@@ -313,10 +314,12 @@ public class Server {
 		msgs.set(newLow, temp); 
 		index++; //skip the swapped DVD next time
 		if (index >= msgs.size())
-			return;
+			return msgs;
 		swapped = false;
 
 		} 
+		
+		return msgs;
 	}
 	
 	//driver
