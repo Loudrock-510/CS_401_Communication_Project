@@ -187,14 +187,13 @@ public class Server {
 		return s;
 	}
 
-	private void saveMsgs() {
+	private void saveMsgs() throws IOException {
 		String buf = "";
 		File file = new File(msgsFile);
 		if(file.delete()) 
-    		file.createNewFile();
+    			file.createNewFile();
 		else {
-    		throw new Exception("File couldn't be cleared!");
-			return;
+    		throw new IOException("File couldn't be deleted!");
 		}
 		try {
 			FileWriter fw = new FileWriter(file);
@@ -204,11 +203,11 @@ public class Server {
 				fw.write(buf + "\n\n");
 			}
 			fw.write("-----GROUP CHATS-----\n\n");
-			for (int i = 0; i < groupChats.size(); i++) {
-				buf = groupChats.get(i).toString();
+			for (int i = 0; i < groups.size(); i++) {
+				buf = groups.get(i).toString();
 				fw.write(buf + "\n\n");
 			}
-			buf = groups[groups.length-1].toString();
+			buf = groups.get(groups.size()-1).toString();
 			fw.write(buf);
 			fw.close();
 		} catch (IOException e) {
@@ -222,7 +221,7 @@ public class Server {
 	}
 
 	public String loadData(String filename) {
-		msgsFile = filename;
+		//msgsFile = filename;
 		String buf = "";
 		try {
 		File file = new File(filename);
@@ -245,7 +244,7 @@ public class Server {
 		int lastIn = 0;
 		
 		for (int i = 0; i < (dms.length() - dms.replace("\n", "").length()); i++) {
-			directChats.set(i, stringToDirMsg(dms.split('\n')[i]));
+			directChats.set(i, stringToDirMsg(dms.split("\n")[i]));
 			lastIn = i;
 		}
 		if (lastIn > directChats.size() - 1) {
