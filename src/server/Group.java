@@ -50,7 +50,11 @@ public class Group {
 	}
 	*/
 	
-	//this is adding a single person to group
+	public Group(String sender, List<String> recipients, String messageText, LocalDateTime timestamp) {
+        //TODO Auto-generated constructor stub
+    }
+
+    //this is adding a single person to group
 	public void addToGroup(String username) {
 		groupUsers.add(username);
 	}
