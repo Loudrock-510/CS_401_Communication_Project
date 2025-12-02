@@ -21,7 +21,7 @@ public class Server {
 	private List<Log> logs = new ArrayList<>();
 	private List<Message> masterLog = new ArrayList<>(); // all msgs sent thru server
 	
-	private Boolean modified; //UPDATE TO TRUE ANY TIME ADDING MESSAGES TO directChats OR groups********
+	private Boolean chatsModified; //UPDATE TO TRUE ANY TIME ADDING MESSAGES TO directChats OR groups********
 	private final String msgsFile = "AllChats.txt"; //filename to write messages to
 	
 	private ServerSocket serverSocket;
@@ -37,7 +37,7 @@ public class Server {
 	
 	//constructor
 	public Server(int port) {
-		modified = false;
+		chatsModified = false;
 		try {
 			serverSocket = new ServerSocket(port);
 			
@@ -144,6 +144,12 @@ public class Server {
 	public void createLog() {}
 	
 	private Group stringToGroup(String s) {
+		//String sMsgs = s.split('~')[2]
+		List<Message> msgs = null;
+		List<String> users = null;
+		//for(int i = 0; i < )
+		msgs.add(null);
+		Group g = new Group(users, msgs);
 		return null; //STUB: FINISH
 	}
 	private DirectMessage stringToDirMsg(String s) {
@@ -178,7 +184,7 @@ public class Server {
 		}
 	}
 
-	public String toString(List<Message> msgs) {
+	public String msgListToString(List<Message> msgs) {
 		String s = "";
 		for (int i = 0; i < msgs.size()-1; i++) {
 			s += msgs.get(i).toString() + "\n\n";
@@ -217,7 +223,7 @@ public class Server {
 			//e.printStackTrace();
 			return;
 		}
-		modified = false;
+		chatsModified = false;
 	}
 
 	public String loadData(String filename) {
@@ -262,7 +268,7 @@ public class Server {
 			}
 		}
 		
-		modified = false;
+		chatsModified = false;
 	}
 	
 	//driver

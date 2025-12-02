@@ -2,6 +2,7 @@ package server;
 
 import java.time.LocalDateTime;
 import java.util.*;
+import server.User;
 //import Message
 //import User
 
@@ -25,6 +26,7 @@ public class Group {
 	
 	//constructor new group , sender and recip and inital message
 	
+	/* --ERRORS, COMMENTING OUT--
 	public Group(User sender, List<String> recipient, String initialMessage) {
 		this.groupUID = count++;
 		
@@ -38,7 +40,7 @@ public class Group {
 		
 		//create initial message
 		LocalDateTime timestamp = LocalDateTime.now() ;
-		Message msg = new Message(timestamp,initialMessage,sender,List<User> recipient);
+		Message msg = new Message(timestamp,initialMessage,sender, List<User> recipient);
 		//add it to list
 		messages.add(msg);
 		
@@ -47,6 +49,7 @@ public class Group {
 		//new so true
 		this.newMessage = true;
 	}
+	*/
 	
 	//this is adding a single person to group
 	public void addToGroup(String username) {
@@ -80,6 +83,16 @@ public class Group {
 	
 	public int getGroupUID() {
 		return groupUID;
+	}
+	public String toString() {
+		String id = "" + groupUID, users = "", msgs = "";
+		for (int i = 0; i < groupUsers.size(); i++) {
+			users += groupUsers.get(i) + ',';
+		}
+		for (int i = 0; i < messages.size(); i++) {
+			msgs += messages.get(i).getMessage() + "~sent at~" + messages.get(i).getTimestamp();
+		}
+		return id + '~' + users + '~' + msgs;
 	}
 	
 }
