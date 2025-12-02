@@ -1,7 +1,16 @@
 package User.webpages;
 
 import java.awt.*;
+import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.util.*;
+import java.util.List;
+
 import javax.swing.*;
+
+import server.Message;
+import server.Packet;
+import server.Type;
 
 class Chatroom extends JPanel {
     private final TeamChatApp app;
@@ -51,8 +60,9 @@ class Chatroom extends JPanel {
             if (text.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "No message detected.");
             } else {
+            	
                 //Message log to send to server would be created here
-                //Message msg = new Message(app.getCurrentUser(), title.getText(), text);
+                //Message msg = new Message(app.getCurrentUser(), title.getText(), text);       
                 appendMessage("You: " + text);
                 sendMessageTf.setText("");
                 revalidate();
@@ -63,6 +73,7 @@ class Chatroom extends JPanel {
             app.showSearchChat();
         });
     }
+    
 
     void loadConversation(String otherUser, String[] recentMessages) {
         title.setText(otherUser + "'s Chat");
