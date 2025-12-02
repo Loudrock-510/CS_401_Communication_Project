@@ -40,7 +40,7 @@ public class DirectMessage {
 	   this.newMessage = false;
    }
    
-   public void sendNotifcation() {
+   public void sendNotification() {
 	   newMessage = true;
 	   //...
 	   
