@@ -9,7 +9,7 @@ public class PacketHandler {
     private Client client;
     private Server server;
 
-    public PacketHandler() {
+    public PacketHandler(Client client) {
     }
 
     /*

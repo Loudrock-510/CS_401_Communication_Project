@@ -2,10 +2,11 @@ package server;
 
 public enum Type {
 	DEFAULT,
-	MESSAGES,
-	USERS,
-	LOGIN,
-	ERROR,
-	LOGOUT
+    MESSAGES,
+    USERS,
+    LOGIN,
+    ERROR,
+    LOGOUT,
+    GROUP
 }
 
