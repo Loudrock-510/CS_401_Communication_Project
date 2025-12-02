@@ -30,6 +30,7 @@ class Login extends JPanel {
         JTextField userTextField = new JTextField(20);
         JPasswordField passTextField = new JPasswordField(20);
         JCheckBox itCheck = new JCheckBox("Log in as IT"); // marks user as IT
+        //cut above?
         JButton loginButton = new JButton("Login");
 
         userTextField.setMaximumSize(new Dimension(400, 40));

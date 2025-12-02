@@ -91,6 +91,9 @@ public class TeamChatApp extends JFrame {
             TeamChatApp app = new TeamChatApp();
             app.setVisible(true);
             app.showCard(LOGIN);
+            //to make default logout
+            //app.setDefaultCloseOperation(Client.sendLogout());
+            app.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         });
     }
 }
