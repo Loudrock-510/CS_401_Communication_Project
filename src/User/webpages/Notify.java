@@ -7,9 +7,11 @@ import javax.swing.*;
 
 import server.Client;
 
+import server.Message;
+
 class Notify extends JPanel {
 
-    sendNotification(Message receivedMsg) {
+    public void sendNotification(Message receivedMsg) {
         JOptionPane.showMessageDialog(null, "Message Received: " + receivedMsg.toString());
     }
 }
