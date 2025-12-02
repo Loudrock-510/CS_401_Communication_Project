@@ -142,6 +142,14 @@ public class Server {
 	public void stringToLog() {}
 	public void stringToUser() {}
 	public void createLog() {}
+	
+	private Group stringToGroup(String s) {
+		return null; //STUB: FINISH
+	}
+	private DirectMessage stringToDirMsg(String s) {
+		return null; //STUB: FINISH
+	}
+	
 	public Log getLog() {return null;}
 	public List<Log> getLogs(String UID){return null;}
 	public Log ViewUserLog(String username) {return null;}
@@ -232,25 +240,25 @@ public class Server {
 
 	private void loadMsgs() {
 		String s = loadData(msgsFile);
-		String dms = s.split('~')[1];
-		String groups = s.split('~')[3];
+		String dms = s.split("~")[1];
+		String fGroups = s.split("~")[3]; //file groups
 		int lastIn = 0;
 		
-		for (int i = 0; i < (dms.length() - dms.replace('\n', "").length()); i++) {
-			directChats[i] = dms.split('\n')[i];
+		for (int i = 0; i < (dms.length() - dms.replace("\n", "").length()); i++) {
+			directChats.set(i, stringToDirMsg(dms.split('\n')[i]));
 			lastIn = i;
 		}
-		if (lastIn > directChats.length() - 1) {
-			for (int i = 0; i < directChats.length(); i++) {
+		if (lastIn > directChats.size() - 1) {
+			for (int i = 0; i < directChats.size(); i++) {
 				directChats.remove(i);
 			}
 		}
-		for (int i = 0; i < (groups.length() - groups.replace('\n', "").length()); i++) {
-			groups[i] = groups.split('\n')[i];
+		for (int i = 0; i < (fGroups.length() - fGroups.replace("\n", "").length()); i++) {
+			groups.set(i, stringToGroup(fGroups.split("\n")[i]));
 			lastIn = i;
 		}
-		if (lastIn > groups.length() - 1) {
-			for (int i = 0; i < groups.length(); i++) {
+		if (lastIn > groups.size() - 1) {
+			for (int i = 0; i < groups.size(); i++) {
 				groups.remove(i);
 			}
 		}
