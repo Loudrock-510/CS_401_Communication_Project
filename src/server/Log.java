@@ -36,5 +36,9 @@ public class Log {
 		log.add(message);
 	}
 	
+	public List<Message> getList() {
+		return log;
+	}
+	
 	
 }
