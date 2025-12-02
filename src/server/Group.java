@@ -7,7 +7,6 @@ import server.User;
 //import User
 
 public class Group {
-	private int numUsers;
 	private List<String> groupUsers = new ArrayList<>();
 	private List<Message> messages = new ArrayList<>();
 	static private int count = 0;
@@ -54,12 +53,10 @@ public class Group {
 	//this is adding a single person to group
 	public void addToGroup(String username) {
 		groupUsers.add(username);
-		numUsers++;
 	}
 	//if add multiple at once
 	public void addMultipleToGroup(List<String> usernames) {
 		groupUsers.addAll(usernames); //add all adds entire list to the list
-		numUsers =+ usernames.size();
 	}
 	
 	public void sendNotification() {
@@ -70,6 +67,10 @@ public class Group {
 	public void messageDelivered() {
 		newMessage = false;
 		//...
+	}
+	
+	public Boolean getNewMessage() {
+		return newMessage;
 	}
 	
 	//getters
