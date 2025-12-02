@@ -272,6 +272,53 @@ public class Server {
 		chatsModified = false;
 	}
 	
+	private Boolean msgsSorted(List<Message> msgs) {
+		for (int i = 0; i < msgs.size()-1; i++) {
+			if (msgs.get(i).getTimestamp().compareTo(msgs.get(i+1).getTimestamp()) > 0)
+				return false;
+		}
+		return true;
+	}
+	
+	private void sortMsgs(List<Message> msgs) {
+		if (msgs.size() < 2)
+			return;
+		if (msgs.size() == 2) {
+			if (msgs.get(0).getTimestamp().compareTo(msgs.get(1).getTimestamp()) > 0) {
+				Message temp = msgs.get(1);
+				msgs.set(1, msgs.get(0));
+				msgs.set(0, temp);
+				return;
+			}
+			else if (msgs.get(0).getTimestamp().compareTo(msgs.get(1).getTimestamp()) == 0) {
+				return;
+			}
+			else //first comes before second; do nothing
+				return;
+		}
+		
+		//msgs.size() > 2, so:
+		int newLow = 0;
+		int index = 0;
+		Boolean swapped = false;
+		while(!msgsSorted(msgs)) {
+		for (int i = index; i < msgs.size(); i++) {
+			if (msgs.get(i).getTimestamp().compareTo(msgs.get(newLow).getTimestamp()) < 0) {
+				newLow = i;
+				swapped = true;
+			}
+		}
+		Message temp = msgs.get(index);
+		msgs.set(index, msgs.get(newLow));
+		msgs.set(newLow, temp); 
+		index++; //skip the swapped DVD next time
+		if (index >= msgs.size())
+			return;
+		swapped = false;
+
+		} 
+	}
+	
 	//driver
 	public static void main(String[] args) {
 		int port = 12345; //ex port number change when figure out which port using which client connects to
