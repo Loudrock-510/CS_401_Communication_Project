@@ -21,7 +21,10 @@ public class DirectMessage {
 	   groupUsers.add(recipient.getUsername());
 	   
 	   //initial message create it
-	   Message msg = new Message(sender.getUsername(), initialMessage);
+	   Message msg = new Message(java.time.LocalDateTime.now(),
+			   sender.getUsername(), 
+			   initialMessage,
+			   java.util.List.of(recipient.getUsername()));
 	   //add message to list
 	   messages.add(msg);
    }
@@ -61,6 +64,11 @@ public class DirectMessage {
    public List<Message> getMessage() {
 	   return this.messages;
    }
+   
+   public boolean isNewMessage() {
+	   return newMessage;
+   }
+   
    
    
 }
