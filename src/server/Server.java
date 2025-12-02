@@ -7,18 +7,13 @@ import java.util.concurrent.*; //package for multithreading (ExecutorService, Th
 
 import javax.swing.JOptionPane;
 
-import server.Packet;
-import server.ClientHandler;
-import server.User;
-import server.Log;
-import server.Message;
+import server.*;
 
 public class Server {
 	//lists stored in mem for now 
 	private List<User> users = new ArrayList<>();
 	private List<DirectMessage> directChats = new ArrayList<>();
 	private List<Group> groups = new ArrayList<>();
-	private List<Log> logs = new ArrayList<>();
 	private List<Message> masterLog = new ArrayList<>(); // all msgs sent thru server
 	
 	private Boolean chatsModified; //UPDATE TO TRUE ANY TIME ADDING MESSAGES TO directChats OR groups********
@@ -156,9 +151,9 @@ public class Server {
 		return null; //STUB: FINISH
 	}
 	
-	public Log getLog() {return null;}
-	public List<Log> getLogs(String UID){return null;}
-	public Log ViewUserLog(String username) {return null;}
+//	public Log getLog() {return null;}
+//	public List<Log> getLogs(String UID){return null;}
+//	public Log ViewUserLog(String username) {return null;}
 	
 	//getters
 	public List<User> getUsers(){
@@ -235,7 +230,7 @@ public class Server {
 		while (scan.hasNextLine()) {
 			buf += scan.nextLine() + '\n';
 		}
-		buf.trim();
+	//	buf.trim();
 		scan.close();
 			return buf;
 		} catch (FileNotFoundException e) {

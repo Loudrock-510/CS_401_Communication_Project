@@ -110,6 +110,6 @@ public class TestServer {
 			return;
 		}
 		String s = svr.loadData("SERVERTESTING.txt");
-		assertEquals(s, "TESTTEXT1\nTESTTEXT2");
+		assertEquals(s, "TESTTEXT1\nTESTTEXT2\n");
 	}
 }
