@@ -29,12 +29,17 @@ class SearchIT extends JPanel {
         JPanel row = new JPanel();
         row.setLayout(new BoxLayout(row, BoxLayout.X_AXIS));
 
+        JButton backButton = new JButton("Go back to Chats");
+        backButton.setMaximumSize(new Dimension(200, 40));
+
         JButton searchButton = new JButton("Search");
         searchButton.setMaximumSize(new Dimension(200, 40));
 
         JButton createUser = new JButton("Create a New User");
         createUser.setMaximumSize(new Dimension(250, 40));
 
+        row.add(backButton);
+        row.add(Box.createHorizontalStrut(12));
         row.add(searchButton);
         row.add(Box.createHorizontalStrut(12));
         row.add(createUser);
@@ -56,6 +61,7 @@ class SearchIT extends JPanel {
             }
         });
 
+        backButton.addActionListener(e -> app.showSearchChat());
         createUser.addActionListener(e -> app.showCreateUser());
     }
 }

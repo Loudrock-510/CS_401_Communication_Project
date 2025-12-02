@@ -3,44 +3,46 @@ package server;
 
 import java.util.ArrayList;
 import java.util.List;
+import server.*;
 
 public class PacketHandler {
     private Client client;
     private Server server;
+
     public PacketHandler() {
     }
-    
+
     /*
      * Place this code in client
-    private PacketHandler handler = new PacketHandler(this);
+     * private PacketHandler handler = new PacketHandler(this);
+     * 
+     * // example code for handling when a packet arrives:
+     * handler.handle(packet);
+     */
 
- 	// example code for handling when a packet arrives:
- 	handler.handle(packet);
-    */
-    
-    
     /*
      * ********************************************************
      * PACKET HANDLERS
      * 
-     * Returns proper return type depending on the type 
+     * Returns proper return type depending on the type
      * attribute of the Packet object
      * ********************************************************
      */
-    //THIS ALL GOES IN CLIENT AND SERVER
-    public void handlePacket(Packet packet) {
+    // THIS ALL GOES IN CLIENT AND SERVER
+    public Object handlePacket(Packet packet) {
         switch (packet.getType()) {
-            case USERS -> handleUsers(packet);
-            case MESSAGES -> handleMessages(packet);
-            case LOGIN -> handleLogin(packet);
-            case ERROR -> handleError(packet);
-            case LOGOUT -> handleLogout(packet);
-            
-            //remove later. used for debugging
+            case USERS -> {return handleUsers(packet);}
+            case MESSAGES -> {return handleMessages(packet);}
+            case LOGIN -> {return handleLogin(packet);}
+            case ERROR -> {return handleError(packet);}
+            case LOGOUT -> {return handleLogout(packet);}
+
+            // remove later. used for debugging
             default -> System.out.println("Unknown packet type: " + packet.getType());
         }
+        return packet;
     }
-    
+
     private Object handleLogout(Packet packet) {
         // close thread
     	//************************
@@ -49,16 +51,17 @@ public class PacketHandler {
        return null;
     }
 
-    //added handle method public so it can grab handlePacket method since its private
+    // added handle method public so it can grab handlePacket method since its
+    // private
     public void handle(Packet packet, ClientHandler handler) {
-    	handlePacket(packet);
+        handlePacket(packet);
     }
-    
+
     /*
      * *********************************************************
      * USER PACKET HANDLER
      * 
-     * returns one user or a list of users 
+     * returns one user or a list of users
      * based on the content of the packet
      * ********************************************************
      */
@@ -68,7 +71,7 @@ public class PacketHandler {
     	//Test console print
         System.out.println("SERVER: Received USERS packet");
         if (content.isEmpty()) {
-        	//remove later. used for debugging
+            // remove later. used for debugging
             System.out.println("No users in packet.");
             return null;
         }
@@ -88,11 +91,12 @@ public class PacketHandler {
         
 
     }
+
     /*
      * *****************************************************
      * MESSAGE PACKET HANDLER
      * 
-     * returns one message string or a list of strings 
+     * returns one message string or a list of strings
      * depending on the content of the packet
      * *****************************************************
      */
@@ -117,37 +121,35 @@ public class PacketHandler {
         }
     }
 
-    
     /*
      * ******************************************************
      * LOGIN PACKET HANDLER
      * 
-     * username is stored in  [0] and password stored in [1] 
+     * username is stored in [0] and password stored in [1]
      * and is returned as a singly LoginInfo object
      * ******************************************************
      */
     private LoginInfo handleLogin(Packet packet) {
         List<Object> content = packet.getcontent();
-        //************************
-    	//Test console print
-        System.out.println("SERVER: Received LOGIN packet");
-        if (content.size() < 2) { // does not contain a password or login
-            return null;
+        String status = packet.getStatus();
+        if (status == "REQUEST"){
+            if (content.size() < 2) { // does not contain a password or login
+                return null;
+            }
+            String username = content.get(0).toString();
+            String password = content.get(1).toString();
+            return new LoginInfo(username, password);
         }
-
-        String username = content.get(0).toString();
-        String password = content.get(1).toString();
-
-        return new LoginInfo(username, password);
+        return null;
     }
-    
+
     /*
      * *******************************************************
      * ERROR PACKET HANDLER
-     * 
      * ******************************************************
      */
-    private void handleError(Packet packet) {
+    private int handleError(Packet packet) {
         System.out.println("Error: " + packet.getcontent().get(0));
+        return 1;
     }
 }

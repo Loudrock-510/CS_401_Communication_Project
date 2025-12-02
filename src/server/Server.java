@@ -21,7 +21,7 @@ public class Server {
 	private List<Log> logs = new ArrayList<>();
 	private List<Message> masterLog = new ArrayList<>(); // all msgs sent thru server
 	
-	private Boolean modified; //UPDATE TO TRUE ANY TIME ADDING MESSAGES TO directChats OR groups********
+	private Boolean chatsModified; //UPDATE TO TRUE ANY TIME ADDING MESSAGES TO directChats OR groups********
 	private final String msgsFile = "AllChats.txt"; //filename to write messages to
 	
 	private ServerSocket serverSocket;
@@ -37,7 +37,7 @@ public class Server {
 	
 	//constructor
 	public Server(int port) {
-		modified = false;
+		chatsModified = false;
 		try {
 			serverSocket = new ServerSocket(port);
 			
@@ -142,6 +142,20 @@ public class Server {
 	public void stringToLog() {}
 	public void stringToUser() {}
 	public void createLog() {}
+	
+	private Group stringToGroup(String s) {
+		//String sMsgs = s.split('~')[2]
+		List<Message> msgs = null;
+		List<String> users = null;
+		//for(int i = 0; i < )
+		msgs.add(null);
+		Group g = new Group(users, msgs);
+		return null; //STUB: FINISH
+	}
+	private DirectMessage stringToDirMsg(String s) {
+		return null; //STUB: FINISH
+	}
+	
 	public Log getLog() {return null;}
 	public List<Log> getLogs(String UID){return null;}
 	public Log ViewUserLog(String username) {return null;}
@@ -170,7 +184,7 @@ public class Server {
 		}
 	}
 
-	public String toString(List<Message> msgs) {
+	public String msgListToString(List<Message> msgs) {
 		String s = "";
 		for (int i = 0; i < msgs.size()-1; i++) {
 			s += msgs.get(i).toString() + "\n\n";
@@ -179,14 +193,13 @@ public class Server {
 		return s;
 	}
 
-	private void saveMsgs() {
+	private void saveMsgs() throws IOException {
 		String buf = "";
 		File file = new File(msgsFile);
 		if(file.delete()) 
-    		file.createNewFile();
+    			file.createNewFile();
 		else {
-    		throw new Exception("File couldn't be cleared!");
-			return;
+    		throw new IOException("File couldn't be deleted!");
 		}
 		try {
 			FileWriter fw = new FileWriter(file);
@@ -196,11 +209,11 @@ public class Server {
 				fw.write(buf + "\n\n");
 			}
 			fw.write("-----GROUP CHATS-----\n\n");
-			for (int i = 0; i < groupChats.size(); i++) {
-				buf = groupChats.get(i).toString();
+			for (int i = 0; i < groups.size(); i++) {
+				buf = groups.get(i).toString();
 				fw.write(buf + "\n\n");
 			}
-			buf = groups[groups.length-1].toString();
+			buf = groups.get(groups.size()-1).toString();
 			fw.write(buf);
 			fw.close();
 		} catch (IOException e) {
@@ -210,11 +223,11 @@ public class Server {
 			//e.printStackTrace();
 			return;
 		}
-		modified = false;
+		chatsModified = false;
 	}
 
 	public String loadData(String filename) {
-		msgsFile = filename;
+		//msgsFile = filename;
 		String buf = "";
 		try {
 		File file = new File(filename);
@@ -222,6 +235,7 @@ public class Server {
 		while (scan.hasNextLine()) {
 			buf += scan.nextLine() + '\n';
 		}
+		buf.trim();
 		scan.close();
 			return buf;
 		} catch (FileNotFoundException e) {
@@ -232,30 +246,80 @@ public class Server {
 
 	private void loadMsgs() {
 		String s = loadData(msgsFile);
-		String dms = s.split('~')[1];
-		String groups = s.split('~')[3];
+		String dms = s.split("~")[1];
+		String fGroups = s.split("~")[3]; //file groups
 		int lastIn = 0;
 		
-		for (int i = 0; i < (dms.length() - dms.replace('\n', "").length()); i++) {
-			directChats[i] = dms.split('\n')[i];
+		for (int i = 0; i < (dms.length() - dms.replace("\n", "").length()); i++) {
+			directChats.set(i, stringToDirMsg(dms.split("\n")[i]));
 			lastIn = i;
 		}
-		if (lastIn > directChats.length() - 1) {
-			for (int i = 0; i < directChats.length(); i++) {
+		if (lastIn > directChats.size() - 1) {
+			for (int i = 0; i < directChats.size(); i++) {
 				directChats.remove(i);
 			}
 		}
-		for (int i = 0; i < (groups.length() - groups.replace('\n', "").length()); i++) {
-			groups[i] = groups.split('\n')[i];
+		for (int i = 0; i < (fGroups.length() - fGroups.replace("\n", "").length()); i++) {
+			groups.set(i, stringToGroup(fGroups.split("\n")[i]));
 			lastIn = i;
 		}
-		if (lastIn > groups.length() - 1) {
-			for (int i = 0; i < groups.length(); i++) {
+		if (lastIn > groups.size() - 1) {
+			for (int i = 0; i < groups.size(); i++) {
 				groups.remove(i);
 			}
 		}
 		
-		modified = false;
+		chatsModified = false;
+	}
+	
+	private Boolean msgsSorted(List<Message> msgs) {
+		for (int i = 0; i < msgs.size()-1; i++) {
+			if (msgs.get(i).getTimestamp().compareTo(msgs.get(i+1).getTimestamp()) > 0)
+				return false;
+		}
+		return true;
+	}
+	
+	private List<Message> sortMsgs(List<Message> gMsgs) {
+		List<Message> msgs = gMsgs;
+		if (msgs.size() < 2)
+			return msgs;
+		if (msgs.size() == 2) {
+			if (msgs.get(0).getTimestamp().compareTo(msgs.get(1).getTimestamp()) > 0) {
+				Message temp = msgs.get(1);
+				msgs.set(1, msgs.get(0));
+				msgs.set(0, temp);
+				return msgs;
+			}
+			else if (msgs.get(0).getTimestamp().compareTo(msgs.get(1).getTimestamp()) == 0) {
+				return msgs;
+			}
+			else //first comes before second; do nothing
+				return msgs;
+		}
+		
+		//msgs.size() > 2, so:
+		int newLow = 0;
+		int index = 0;
+		Boolean swapped = false;
+		while(!msgsSorted(msgs)) {
+		for (int i = index; i < msgs.size(); i++) {
+			if (msgs.get(i).getTimestamp().compareTo(msgs.get(newLow).getTimestamp()) < 0) {
+				newLow = i;
+				swapped = true;
+			}
+		}
+		Message temp = msgs.get(index);
+		msgs.set(index, msgs.get(newLow));
+		msgs.set(newLow, temp); 
+		index++; //skip the swapped DVD next time
+		if (index >= msgs.size())
+			return msgs;
+		swapped = false;
+
+		} 
+		
+		return msgs;
 	}
 	
 	//driver
