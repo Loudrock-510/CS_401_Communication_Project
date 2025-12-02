@@ -44,7 +44,7 @@ public class TestMessage {
 		List<String> users = new ArrayList<String>();
 		users.add("Test1");
 		users.add("Test2");
-		Message m = new Message(cur, "This is a test..", "Bob", null);
+		Message m = new Message(cur, "This is a test..", "Bob", users);
 		String test = "Sent at: " + cur + ", Sender: " + "Bob" + 
 				"\nMessage Content: " + "This is a test..\nRecipients: Test1, Test2";
 		assertEquals(test, m.toString());
