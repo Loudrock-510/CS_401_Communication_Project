@@ -96,7 +96,6 @@ public class TestServer {
 
 	@Test
 	public void testLoadData() {
-		fail("Not yet implemented");
 		Server svr = new Server(12345);
 		File f = new File("SERVERTESTING.txt");
 		try {
