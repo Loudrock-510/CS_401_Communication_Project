@@ -6,6 +6,13 @@ import org.junit.Test;
 
 import server.Server;
 
+import java.io.*;
+import java.util.*;
+
+import javax.swing.JOptionPane;
+
+import java.net.*;
+
 public class TestServer {
 
 	@Test
@@ -91,6 +98,19 @@ public class TestServer {
 	public void testLoadData() {
 		fail("Not yet implemented");
 		Server svr = new Server(12345);
+		File f = new File("SERVERTESTING.txt");
+		try {
+			FileWriter fw = new FileWriter(f);
+			fw.write("TESTTEXT1\nTESTTEXT2");
+			fw.close();
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			//System.out.println("IO filewriter error");
+			JOptionPane.showMessageDialog(null, "IO filewriter error");
+			//e.printStackTrace();
+			return;
+		}
+		String s = svr.loadData("SERVERTESTING.txt");
+		assertEquals(s, "TESTTEXT1\nTESTTEXT2");
 	}
-
 }

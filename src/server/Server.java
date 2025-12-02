@@ -235,6 +235,7 @@ public class Server {
 		while (scan.hasNextLine()) {
 			buf += scan.nextLine() + '\n';
 		}
+		buf.trim();
 		scan.close();
 			return buf;
 		} catch (FileNotFoundException e) {
