@@ -22,11 +22,12 @@ public class DirectMessage {
 	   groupUsers.add(recipient.getUsername());
 	   
 	   //initial message create it
-	   Message msg = new Message(java.time.LocalDateTime.now(),
-			   sender.getUsername(), 
-			   initialMessage,
-			   java.util.List.of(recipient.getUsername()));
-	   //add message to list
+      Message msg = new Message(
+            java.time.LocalDateTime.now(),
+            initialMessage, // message text
+            sender.getUsername(), // sender username
+            java.util.List.of(recipient.getUsername()));
+       //add message to list
 	   messages.add(msg);
    }
    
