@@ -68,11 +68,20 @@ public class Server {
             if (!file.exists()) {
                 // Try in src directory
                 file = new File("src/All_Users.txt");
+                System.out.println("main users directory not found!");
             }
            
             if (file.exists()) {
+            /*	String debug = "";
                 BufferedReader br = new BufferedReader(new FileReader(file));
                 String line;
+                while ((line = br.readLine()) != null) {
+                	debug += line + '\n';
+                }
+                System.out.println(debug);
+                */
+            	 BufferedReader br = new BufferedReader(new FileReader(file));
+                 String line;
                 while ((line = br.readLine()) != null) {
                     line = line.trim();
                     if (line.isEmpty()) {
@@ -93,12 +102,14 @@ public class Server {
                             }
                         }
                         if (!alreadyExists) {
-                            users.add(new User(username, password, isAdmin));
+                        	User test = new User(username, password, isAdmin);
+                            users.add(test);
+                            System.out.println("ADDING " + test.getUsername());
                         }
                     }
                 }
                 br.close();
-            }
+            } else System.out.println("File doesn't exist!");
         } catch (IOException e) {
             // Failed to read users
         }
@@ -139,7 +150,9 @@ public class Server {
             }catch (IOException e) {
                 break;
             }
+            System.out.println("Loaded users: " + getUsers().size());
         }
+        
     }
    
     //communication helpers
@@ -185,16 +198,6 @@ public class Server {
     public synchronized void removeClient(User u) {
         activeClients.remove(u.getUsername());
         clientOutputStreams.remove(u.getUsername());
-    }
-   
-    //login verification hceck if username and pass match any known user
-    public synchronized boolean verifyLogin(String username, String password) {
-        for(User u : users) {
-            if(u.getUsername().equals(username) && u.getPassword().equals(password)) {
-                return true; //found matching
-            }
-        }
-        return false; //not found
     }
    
     //save load methods

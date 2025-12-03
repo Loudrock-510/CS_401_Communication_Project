@@ -156,7 +156,9 @@ public class Client {
 		}
 		public synchronized void setMyUser(User user) {
 			this.myUser = user;
-			this.loggedIn = user != null;
+			if (user != null)
+				this.loggedIn = true;
+			else this.loggedIn = false;
 		}
 		
 		public synchronized User getMyUser() {

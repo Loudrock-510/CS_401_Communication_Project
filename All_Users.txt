@@ -1,0 +1,8 @@
+Brian|1234|false
+Admin|admin|true
+Alice|alice123|false
+Bob|bob123|false
+Loudrock|Loudrock510|true
+Kyle1234|Kyle1234|true
+Matt420|Matt420|true
+TestUser|Password|false
