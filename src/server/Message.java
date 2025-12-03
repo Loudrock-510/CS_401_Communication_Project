@@ -1,9 +1,10 @@
 package server;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.List;
 
-public class Message {
+public class Message implements Serializable {
 	private LocalDateTime timestamp;
 	private String message;
 	private String sender;

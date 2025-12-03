@@ -65,7 +65,12 @@ class Chatroom extends JPanel {
             String text = sendMessageTf.getText().trim();
             if (text.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "No message detected.");
+<<<<<<< HEAD
             } else if (text.length() > 1000) {
+=======
+            }
+            else if (text.length() > 1000) {
+>>>>>>> 794bd1ace3e5063890adc28763198620dc184d44
                 JOptionPane.showMessageDialog(this, 
                     "Message exceeds 1000 character limit. Current length: " + text.length() + " characters.",
                     "Message Too Long",

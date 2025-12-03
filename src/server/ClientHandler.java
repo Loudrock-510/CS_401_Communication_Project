@@ -34,7 +34,7 @@ public class ClientHandler implements Runnable{
 	public ClientHandler(Socket socket, Server server) {
 		this.socket = socket;
 		this.server = server;
-		this.handler = new PacketHandler(); //server side packet handler
+		this.handler = new PacketHandler(server); //server side packet handler
 	}
 	
 	@Override
@@ -54,7 +54,6 @@ public class ClientHandler implements Runnable{
 			}
 			
 		}catch(ClassNotFoundException| IOException e) {
-			System.out.println("Client disconnected");
 		}
 	}
 	
@@ -74,8 +73,6 @@ public class ClientHandler implements Runnable{
 		clientSockets.remove(user.getUsername());
 		clientInput.remove(user.getUsername());
 		clientOutput.remove(user.getUsername());
-		
-		System.out.println("Disconnected User: " + user.getUsername());
 	}
 	
 	//get output stream for user
@@ -94,12 +91,19 @@ public class ClientHandler implements Runnable{
 			out.writeObject(packet);
 			out.flush();
 		}catch(IOException e) {
-			System.out.println("failed to send packet");
 		}
 	}
 	
 	public User getLoggedInUser() {
 		return loggedInUser;
+	}
+	
+	public Socket getSocket() {
+		return socket;
+	}
+	
+	public ObjectOutputStream getOutputStream() {
+		return out;
 	}
 	
 }

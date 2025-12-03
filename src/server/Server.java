@@ -2,12 +2,16 @@ package server;
 
 import java.io.*;
 import java.net.*;
+import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.*; //package for multithreading (ExecutorService, ThreadPool, ConcurrentHashMap)
 
 import javax.swing.JOptionPane;
 
-import server.*;
+import server.Packet;
+import server.ClientHandler;
+import server.User;
+import server.Message;
 
 public class Server {
 	//lists stored in mem for now 
@@ -16,7 +20,7 @@ public class Server {
 	private List<Group> groups = new ArrayList<>();
 	private List<Message> masterLog = new ArrayList<>(); // all msgs sent thru server
 	
-	private Boolean chatsModified; //UPDATE TO TRUE ANY TIME ADDING MESSAGES TO directChats OR groups********
+	private Boolean modified; //UPDATE TO TRUE ANY TIME ADDING MESSAGES TO directChats OR groups********
 	private final String msgsFile = "AllChats.txt"; //filename to write messages to
 	
 	private ServerSocket serverSocket;
@@ -27,26 +31,99 @@ public class Server {
 	
 	//map storing which user connected on which socket
 	//concurrenthashmap threadsafe version when mult threads edit at once
-	private final Map<User, Socket> activeClients = new ConcurrentHashMap<>();
+	//Using username as key since User objects don't have equals/hashCode
+	private final Map<String, Socket> activeClients = new ConcurrentHashMap<>();
+	//map storing ObjectOutputStreams for each client (must reuse, not recreate)
+	private final Map<String, ObjectOutputStream> clientOutputStreams = new ConcurrentHashMap<>();
 	
 	
 	//constructor
 	public Server(int port) {
-		chatsModified = false;
+		modified = false;
+		seedUsers();
+		loadGroupsFromFile(); // Load groups and messages from file
 		try {
 			serverSocket = new ServerSocket(port);
 			
 			//create pool of reusable threads for handling clients and 
 			//newCachedThreadPool is scalable and reuses threads
 			threadPool = Executors.newCachedThreadPool();
-			System.out.println("Started on port: " + port);
+			if (port == 12345) {
+				System.out.println("Started on port: 12345");
+			}
 		}catch(IOException e) {
-			System.err.println("Error starting server: " + e.getMessage());
-;		}
+			// Error starting server
+			System.err.println("SERVER: Failed to create ServerSocket on port " + port + ": " + e.getMessage());
+			e.printStackTrace();
+			serverSocket = null; // Ensure it's null if creation failed
+		}
+	}
+
+	private void seedUsers() {
+		try {
+			// Try multiple possible locations for the file
+			File file = new File("All_Users.txt");
+			if (!file.exists()) {
+				// Try in src directory
+				file = new File("src/All_Users.txt");
+			}
+			
+			if (file.exists()) {
+				BufferedReader br = new BufferedReader(new FileReader(file));
+				String line;
+				while ((line = br.readLine()) != null) {
+					line = line.trim();
+					if (line.isEmpty()) {
+						continue;
+					}
+					// Format: username|password|admin(boolean)
+					String[] parts = line.split("\\|");
+					if (parts.length == 3) {
+						String username = parts[0].trim();
+						String password = parts[1].trim();
+						boolean isAdmin = Boolean.parseBoolean(parts[2].trim());
+						// Prevent duplicate users
+						boolean alreadyExists = false;
+						for (User u : users) {
+							if (u.getUsername().equals(username)) {
+								alreadyExists = true;
+								break;
+							}
+						}
+						if (!alreadyExists) {
+							users.add(new User(username, password, isAdmin));
+						}
+					}
+				}
+				br.close();
+			}
+		} catch (IOException e) {
+			// Failed to read users
+		}
 	}
 	
+	public synchronized void saveUsersToFile() {
+		// Try multiple possible locations for the file
+		File file = new File("All_Users.txt");
+		if (!file.exists() && new File("src/All_Users.txt").exists()) {
+			file = new File("src/All_Users.txt");
+		}
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
+			for (User user : users) {
+				String line = user.getUsername() + "|" + user.getPassword() + "|" + user.isAdmin();
+				bw.write(line);
+				bw.newLine();
+			}
+		} catch (IOException e) {
+			// Failed to save users
+		}
+	}
 	//start server and accept clients
 	public void startServer() {
+		if (serverSocket == null) {
+			System.err.println("SERVER: Cannot start server - ServerSocket is null. Check if port is available.");
+			return;
+		}
 		System.out.println("Waiting for client connections...");
 		while(true) {
 			try {
@@ -62,7 +139,6 @@ public class Server {
 				//threadpool instead bc Reuses threads instead of always creating new ones. Limits how many threads run at once (prevents overload). Easier to manage and shut down cleanly
 				threadPool.execute(handler);
 			}catch (IOException e) {
-				System.err.println("Connection err: " + e.getMessage());
 				break;
 			}
 		}
@@ -71,47 +147,46 @@ public class Server {
 	//communication helpers
 	//like lets server send msg to all connected clients like gc message or server announcement
 	public synchronized void broadcast(Packet packet) {
-		//loop thru every connected clients socket 
-		//grab the value key pair of client
-		for(Socket s : activeClients.values()) {
+		//loop thru every connected clients output stream
+		for(Map.Entry<String, ObjectOutputStream> entry : clientOutputStreams.entrySet()) {
 			try {
-				//create stream
-				ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
-				
-				//send packet like a msg
-				out.writeObject(packet);
-				out.flush(); //send immediately
+				ObjectOutputStream out = entry.getValue();
+				if(out != null) {
+					out.writeObject(packet);
+					out.flush(); //send immediately
+				}
 			}catch(IOException e) {
-				System.err.println("failed to send packet: " + e.getMessage());
+				// Failed to send packet
 			}
 		}
 	}
 	
-	//*********
 	//targetting packet to specific client
 	public synchronized void sendToClient(User targetUser, Packet packet) {
-		Socket s = activeClients.get(targetUser);
-		if(s != null && !s.isClosed()) {
+		ObjectOutputStream out = clientOutputStreams.get(targetUser.getUsername());
+		if(out != null) {
 			try {
-				ObjectOutputStream out = new ObjectOutputStream(s.getOutputStream());
 				out.writeObject(packet);
 				out.flush();
 			}catch (IOException e) {
-				System.err.println("Failed to send packet to: " + targetUser.getUsername());
+				// Remove from maps if stream is broken
+				clientOutputStreams.remove(targetUser.getUsername());
+				activeClients.remove(targetUser.getUsername());
 			}
 		}
 	}
 	
 	//add new client to activeClients map when they login
-	public synchronized void registeredClient(User u, Socket s) {
-		activeClients.put(u,s);
-		System.out.println("Registered: " + u.getUsername());
+	public synchronized void registeredClient(User u, Socket s, ObjectOutputStream out) {
+		activeClients.put(u.getUsername(), s);
+		clientOutputStreams.put(u.getUsername(), out);
+		System.out.println("SERVER: Registered client: " + u.getUsername() + " (Total active clients: " + activeClients.size() + ")");
 	}
 	
 	//remove client from list when they disconnect
 	public synchronized void removeClient(User u) {
-		activeClients.remove(u); //removes their socket key value pair
-		System.out.println("Disconnected: " + u.getUsername());
+		activeClients.remove(u.getUsername());
+		clientOutputStreams.remove(u.getUsername());
 	}
 	
 	//login verification hceck if username and pass match any known user
@@ -124,44 +199,219 @@ public class Server {
 		return false; //not found
 	}
 	
-	//save load methods
-	//not implemented yet
-	public void saveLog() {
-		System.out.println("Saving logs...");
-	}
-	
-	public void saveUser() {
-		System.out.println("Saving users...");
-	}
-	
-	public void stringToLog() {}
-	public void stringToUser() {}
-	public void createLog() {}
-	
-	private Group stringToGroup(String s) {
-		//String sMsgs = s.split('~')[2]
-		List<Message> msgs = null;
-		List<String> users = null;
-		//for(int i = 0; i < )
-		msgs.add(null);
-		Group g = new Group(users, msgs);
-		return null; //STUB: FINISH
-	}
-	private DirectMessage stringToDirMsg(String s) {
-		return null; //STUB: FINISH
-	}
-	
-//	public Log getLog() {return null;}
-//	public List<Log> getLogs(String UID){return null;}
-//	public Log ViewUserLog(String username) {return null;}
-	
 	//getters
 	public List<User> getUsers(){
 		return users;
 	}
 	
+	public synchronized Optional<User> findUserByCredentials(String username, String password){
+		return users.stream()
+				.filter(u -> u.getUsername().equals(username) && u.getPassword().equals(password))
+				.findFirst();
+	}
+	
+	public synchronized Optional<User> findUserByUsername(String username){
+		return users.stream()
+				.filter(u -> u.getUsername().equals(username))
+				.findFirst();
+	}
+	
 	public List<Message> getMasterLog(){
 		return masterLog;
+	}
+	
+
+	public synchronized List<Message> getAllMessagesByUser(String username) {
+		List<Message> userMessages = new ArrayList<>();
+		
+		// Search through all groups
+		for (Group group : groups) {
+			for (Message msg : group.getMessages()) {
+				if (msg.getSender().equals(username)) {
+					userMessages.add(msg);
+				}
+			}
+		}
+		
+		// Search through all direct messages
+		for (DirectMessage dm : directChats) {
+			for (Message msg : dm.getMessage()) {
+				if (msg.getSender().equals(username)) {
+					userMessages.add(msg);
+				}
+			}
+		}
+		
+		//also check masterLog as fallback (in case messages aren't in groups/DMs)
+		if (userMessages.isEmpty() && !masterLog.isEmpty()) {
+			for (Message msg : masterLog) {
+				if (msg.getSender().equals(username)) {
+					userMessages.add(msg);
+				}
+			}
+		}
+		
+		//sort by timestamp (oldest first)
+		Collections.sort(userMessages, (m1, m2) -> m1.getTimestamp().compareTo(m2.getTimestamp()));
+		
+		return userMessages;
+	}
+	
+	public List<Group> getGroups() {
+		return groups;
+	}
+	
+	public List<DirectMessage> getDirectChats() {
+		return directChats;
+	}
+	
+
+	public synchronized Group getGroupById(int groupUID) {
+		for (Group group : groups) {
+			if (group.getGroupUID() == groupUID) {
+				return group;
+			}
+		}
+		return null;
+	}
+	
+
+	public synchronized DirectMessage getDirectMessageById(int chatUID) {
+		for (DirectMessage dm : directChats) {
+			if (dm.getChatUID() == chatUID) {
+				return dm;
+			}
+		}
+		return null;
+	}
+
+	private boolean participantsMatch(List<String> list1, List<String> list2) {
+		if (list1.size() != list2.size()) {
+			return false;
+		}
+		List<String> sorted1 = new ArrayList<>(list1);
+		List<String> sorted2 = new ArrayList<>(list2);
+		Collections.sort(sorted1);
+		Collections.sort(sorted2);
+		return sorted1.equals(sorted2);
+	}
+	
+
+	public synchronized Object findOrCreateGroup(List<String> participants, String sender, String messageText, LocalDateTime timestamp) {
+		// Check if exactly 2 participants (DirectMessage)
+		if (participants.size() == 2) {
+			// Check existing direct messages
+			for (DirectMessage dm : directChats) {
+				if (participantsMatch(dm.getGroupUsers(), participants)) {
+					return dm;
+				}
+			}
+		// Create new DirectMessage
+		String recipient = participants.get(0).equals(sender) ? participants.get(1) : participants.get(0);
+		Optional<User> senderUser = findUserByUsername(sender);
+		Optional<User> recipientUser = findUserByUsername(recipient);
+		if (senderUser.isPresent() && recipientUser.isPresent()) {
+			DirectMessage newDM = new DirectMessage(senderUser.get(), recipientUser.get(), messageText);
+			directChats.add(newDM);
+			modified = true;
+			return newDM;
+		}
+		return null;
+		} else {
+			// Check existing groups
+			for (Group group : groups) {
+				if (participantsMatch(group.getGroupUsers(), participants)) {
+					return group;
+				}
+			}
+			// Create new Group
+			List<String> recipients = new ArrayList<>(participants);
+			recipients.remove(sender);
+			Group newGroup = new Group(sender, recipients, messageText, timestamp);
+			groups.add(newGroup);
+			modified = true;
+			return newGroup;
+		}
+	}
+	
+
+	public synchronized List<Object> getGroupsForUser(String username) {
+		List<Object> userGroups = new ArrayList<>();
+		
+		for (Group group : groups) {
+			List<String> participants = group.getGroupUsers();
+			if (participants.contains(username)) {
+				// Force read of all messages to ensure they're in memory before adding to list
+				List<Message> msgs = group.getMessages();
+				for (Message m : msgs) {
+					m.getSender(); // Force read
+				}
+				userGroups.add(group);
+			}
+		}
+		
+		for (DirectMessage dm : directChats) {
+			List<String> participants = dm.getGroupUsers();
+			if (participants.contains(username)) {
+				// Force read of all messages to ensure they're in memory before adding to list
+				List<Message> msgs = dm.getMessage();
+				for (Message m : msgs) {
+					m.getSender(); // Force read
+				}
+				userGroups.add(dm);
+			}
+		}
+		
+		return userGroups;
+	}
+	
+
+	private void sortMessagesByTimestamp(Group group) {
+		Collections.sort(group.getMessages(), (m1, m2) -> 
+			m1.getTimestamp().compareTo(m2.getTimestamp()));
+	}
+	
+
+	private void sortMessagesByTimestamp(DirectMessage dm) {
+		Collections.sort(dm.getMessage(), (m1, m2) -> 
+			m1.getTimestamp().compareTo(m2.getTimestamp()));
+	}
+	
+	/**
+	 * Sorts all messages in all groups and direct messages
+	 */
+	public synchronized void sortAllMessages() {
+		for (Group group : groups) {
+			sortMessagesByTimestamp(group);
+		}
+		for (DirectMessage dm : directChats) {
+			sortMessagesByTimestamp(dm);
+		}
+	}
+	
+
+	public synchronized void addMessageToGroup(Group group, Message message) {
+		group.getMessages().add(message);
+		sortMessagesByTimestamp(group); // Keep sorted
+		group.sendNotification();
+		modified = true;
+		// Don't save to file here
+		// saveGroupsToFile(); // Persist after update
+	}
+	
+	//async file save to avoid blocking
+	public void saveGroupsToFileAsync() {
+		new Thread(() -> {
+			saveGroupsToFile();
+		}).start();
+	}
+	
+
+	public synchronized void addMessageToDirectMessage(DirectMessage dm, Message message) {
+		dm.getMessage().add(message);
+		sortMessagesByTimestamp(dm); // Keep sorted
+		dm.sendNotification();
+		modified = true;
 	}
 	
 	//shutting down
@@ -173,13 +423,11 @@ public class Server {
 			//close socket so no connections
 			serverSocket.close();
 			
-			System.out.println("shutting down server...");
 		}catch(IOException e) {
-			System.err.println("err shutting down server: " + e.getMessage());
 		}
 	}
 
-	public String msgListToString(List<Message> msgs) {
+	public String toString(List<Message> msgs) {
 		String s = "";
 		for (int i = 0; i < msgs.size()-1; i++) {
 			s += msgs.get(i).toString() + "\n\n";
@@ -188,13 +436,16 @@ public class Server {
 		return s;
 	}
 
-	private void saveMsgs() throws IOException {
+	private void saveMsgs() {
 		String buf = "";
 		File file = new File(msgsFile);
-		if(file.delete()) 
-    			file.createNewFile();
-		else {
-    		throw new IOException("File couldn't be deleted!");
+		try {
+			if (file.exists()) {
+				file.delete();
+			}
+			file.createNewFile();
+		} catch (IOException e) {
+			return;
 		}
 		try {
 			FileWriter fw = new FileWriter(file);
@@ -208,8 +459,10 @@ public class Server {
 				buf = groups.get(i).toString();
 				fw.write(buf + "\n\n");
 			}
-			buf = groups.get(groups.size()-1).toString();
-			fw.write(buf);
+			if (!groups.isEmpty()) {
+				buf = groups.get(groups.size() - 1).toString();
+				fw.write(buf);
+			}
 			fw.close();
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
@@ -218,11 +471,11 @@ public class Server {
 			//e.printStackTrace();
 			return;
 		}
-		chatsModified = false;
+		modified = false;
 	}
 
 	public String loadData(String filename) {
-		//msgsFile = filename;
+		// Note: msgsFile is final, cannot be reassigned
 		String buf = "";
 		try {
 		File file = new File(filename);
@@ -230,7 +483,6 @@ public class Server {
 		while (scan.hasNextLine()) {
 			buf += scan.nextLine() + '\n';
 		}
-	//	buf.trim();
 		scan.close();
 			return buf;
 		} catch (FileNotFoundException e) {
@@ -240,81 +492,208 @@ public class Server {
 	}
 
 	private void loadMsgs() {
+	
 		String s = loadData(msgsFile);
-		String dms = s.split("~")[1];
-		String fGroups = s.split("~")[3]; //file groups
-		int lastIn = 0;
-		
-		for (int i = 0; i < (dms.length() - dms.replace("\n", "").length()); i++) {
-			directChats.set(i, stringToDirMsg(dms.split("\n")[i]));
-			lastIn = i;
-		}
-		if (lastIn > directChats.size() - 1) {
-			for (int i = 0; i < directChats.size(); i++) {
-				directChats.remove(i);
-			}
-		}
-		for (int i = 0; i < (fGroups.length() - fGroups.replace("\n", "").length()); i++) {
-			groups.set(i, stringToGroup(fGroups.split("\n")[i]));
-			lastIn = i;
-		}
-		if (lastIn > groups.size() - 1) {
-			for (int i = 0; i < groups.size(); i++) {
-				groups.remove(i);
-			}
+		if (s == null || s.isEmpty()) {
+			return;
 		}
 		
-		chatsModified = false;
+		String[] parts = s.split("~");
+		if (parts.length >= 4) {
+			String dmsStr = parts[1];
+			String groupsStr = parts[3];
+			
+			//Parse direct messages
+			String[] dmLines = dmsStr.split("\n");
+			for (String line : dmLines) {
+				if (line != null && !line.trim().isEmpty()) {
+					
+				}
+			}
+			
+			// Parse groups
+			String[] groupLines = groupsStr.split("\n");
+			for (String line : groupLines) {
+				if (line != null && !line.trim().isEmpty()) {
+				}
+			}
+		}
+		
+		modified = false;
 	}
 	
-	private Boolean msgsSorted(List<Message> msgs) {
-		for (int i = 0; i < msgs.size()-1; i++) {
-			if (msgs.get(i).getTimestamp().compareTo(msgs.get(i+1).getTimestamp()) > 0)
-				return false;
+	public synchronized void saveGroupsToFile() {
+		// Try multiple possible locations for the file
+		File file = new File("All_Messages.txt");
+		if (!file.exists() && new File("src/All_Messages.txt").exists()) {
+			file = new File("src/All_Messages.txt");
 		}
-		return true;
+		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
+			// Save DirectMessages - one message per line
+			for (DirectMessage dm : directChats) {
+				for (Message msg : dm.getMessage()) {
+					bw.write("MESSAGE|DM|" + dm.getChatUID() + "|");
+					bw.write(msg.getTimestamp().toString() + "|");
+					bw.write(msg.getSender() + "|");
+					bw.write(msg.getMessage().replace("|", "\\|").replace("\n", "\\n") + "|");
+					// Write recipients
+					for (int i = 0; i < msg.getRecipients().size(); i++) {
+						if (i > 0) bw.write(",");
+						bw.write(msg.getRecipients().get(i));
+					}
+					bw.newLine();
+				}
+			}
+			
+			// Save Groups - one message per line
+			for (Group group : groups) {
+				for (Message msg : group.getMessages()) {
+					bw.write("MESSAGE|GROUP|" + group.getGroupUID() + "|");
+					bw.write(msg.getTimestamp().toString() + "|");
+					bw.write(msg.getSender() + "|");
+					bw.write(msg.getMessage().replace("|", "\\|").replace("\n", "\\n") + "|");
+					// Write recipients
+					for (int i = 0; i < msg.getRecipients().size(); i++) {
+						if (i > 0) bw.write(",");
+						bw.write(msg.getRecipients().get(i));
+					}
+					bw.newLine();
+				}
+			}
+		} catch (IOException e) {
+		}
 	}
-	
-	private List<Message> sortMsgs(List<Message> gMsgs) {
-		List<Message> msgs = gMsgs;
-		if (msgs.size() < 2)
-			return msgs;
-		if (msgs.size() == 2) {
-			if (msgs.get(0).getTimestamp().compareTo(msgs.get(1).getTimestamp()) > 0) {
-				Message temp = msgs.get(1);
-				msgs.set(1, msgs.get(0));
-				msgs.set(0, temp);
-				return msgs;
-			}
-			else if (msgs.get(0).getTimestamp().compareTo(msgs.get(1).getTimestamp()) == 0) {
-				return msgs;
-			}
-			else //first comes before second; do nothing
-				return msgs;
-		}
-		
-		//msgs.size() > 2, so:
-		int newLow = 0;
-		int index = 0;
-		Boolean swapped = false;
-		while(!msgsSorted(msgs)) {
-		for (int i = index; i < msgs.size(); i++) {
-			if (msgs.get(i).getTimestamp().compareTo(msgs.get(newLow).getTimestamp()) < 0) {
-				newLow = i;
-				swapped = true;
-			}
-		}
-		Message temp = msgs.get(index);
-		msgs.set(index, msgs.get(newLow));
-		msgs.set(newLow, temp); 
-		index++; //skip the swapped DVD next time
-		if (index >= msgs.size())
-			return msgs;
-		swapped = false;
 
-		} 
+	private synchronized void loadGroupsFromFile() {
+		// Try multiple possible locations for the file
+		File file = new File("All_Messages.txt");
+		if (!file.exists()) {
+			// Try in src directory
+			file = new File("src/All_Messages.txt");
+		}
+		if (!file.exists()) {
+			return;
+		}
 		
-		return msgs;
+		// Map to store messages by group: "TYPE|UID" -> List<Message>
+		Map<String, List<Message>> messagesByGroup = new HashMap<>();
+		// Map to store participants: "TYPE|UID" -> Set<String>
+		Map<String, Set<String>> participantsByGroup = new HashMap<>();
+		
+		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+			String line;
+			int messageCount = 0;
+			int lineNumber = 0;
+			while ((line = br.readLine()) != null) {
+				lineNumber++;
+				line = line.trim();
+				if (line.isEmpty()) {
+					continue;
+				}
+				if (!line.startsWith("MESSAGE|")) {
+					continue;
+				}
+				
+				String[] parts = line.split("\\|", -1);
+				if (parts.length < 7) {
+					continue;
+				}
+				
+				try {
+					String type = parts[1]; // "DM" or "GROUP"
+					int uid = Integer.parseInt(parts[2]);
+					
+					LocalDateTime timestamp;
+					String timeStr = parts[3].trim();
+					try {
+						timestamp = LocalDateTime.parse(timeStr);
+					} catch (Exception e) {
+			
+						try {
+							// Format: 2024-01-15T11:00 
+							if (timeStr.matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}$")) {
+								timeStr += ":00"; 
+								timestamp = LocalDateTime.parse(timeStr);
+							} else {
+								// Try with DateTimeFormatter for other formats
+								java.time.format.DateTimeFormatter formatter = 
+									java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+								timestamp = LocalDateTime.parse(timeStr, formatter);
+							}
+						} catch (Exception e2) {
+							System.err.println("Failed to parse timestamp: " + timeStr + " at line " + lineNumber);
+							throw e2; 
+						}
+					}
+					
+					String sender = parts[4];
+					String messageText = parts[5].replace("\\|", "|").replace("\\n", "\n");
+					String[] recipients = parts[6].split(",");
+					
+					List<String> recipientList = new ArrayList<>();
+					for (String r : recipients) {
+						if (!r.trim().isEmpty()) {
+							recipientList.add(r.trim());
+						}
+					}
+					
+					Message msg = new Message(timestamp, messageText, sender, recipientList);
+					
+					//add to masterLog
+					masterLog.add(msg);
+					
+					// Group key: "TYPE|UID"
+					String groupKey = type + "|" + uid;
+					
+					if (!messagesByGroup.containsKey(groupKey)) {
+						messagesByGroup.put(groupKey, new ArrayList<>());
+						participantsByGroup.put(groupKey, new HashSet<>());
+					}
+					messagesByGroup.get(groupKey).add(msg);
+					
+					//track participants (sender + recipients)
+					participantsByGroup.get(groupKey).add(sender);
+					participantsByGroup.get(groupKey).addAll(recipientList);
+					
+					messageCount++;
+				} catch (Exception e) {
+					//log parsing errors for debugging
+					System.err.println("Error parsing message at line " + lineNumber + ": " + e.getMessage());
+				}
+			}
+			
+			//reconstruct Group and DirectMessage objects
+			int groupCount = 0;
+			for (Map.Entry<String, List<Message>> entry : messagesByGroup.entrySet()) {
+				String groupKey = entry.getKey();
+				List<Message> messages = entry.getValue();
+				Set<String> participantSet = participantsByGroup.get(groupKey);
+				
+				String[] keyParts = groupKey.split("\\|");
+				String type = keyParts[0];
+				// UID is not used - new UIDs will be assigned
+				
+				List<String> participantList = new ArrayList<>(participantSet);
+				
+				//sort messages by timestamp
+				Collections.sort(messages, (m1, m2) -> 
+					m1.getTimestamp().compareTo(m2.getTimestamp()));
+				
+				if ("DM".equals(type)) {
+					DirectMessage dm = new DirectMessage(participantList, messages);
+					directChats.add(dm);
+					groupCount++;
+				} else if ("GROUP".equals(type)) {
+					Group group = new Group(participantList, messages);
+					groups.add(group);
+					groupCount++;
+				}
+			}
+			
+		} catch (IOException e) {
+			System.err.println("SERVER: Error loading messages from file: " + e.getMessage());
+			e.printStackTrace();
+		}
 	}
 	
 	//driver

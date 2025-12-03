@@ -1,0 +1,113 @@
+MESSAGE|DM|0|2024-01-15T10:30|Brian|Hello Alice! How are you?|Alice
+MESSAGE|DM|0|2024-01-15T10:31:15|Alice|I'm doing great, thanks for asking!|Brian
+MESSAGE|DM|0|2025-12-01T20:47:50.915908600|Brian|we never talk  anymore?|Alice
+MESSAGE|DM|0|2025-12-01T20:48:26.391143600|Brian|yeah ik its sad|Alice
+MESSAGE|DM|0|2025-12-01T21:08:59.870734800|Alice|real sad michael jackson|Brian
+MESSAGE|DM|0|2025-12-01T21:15:26.853481800|Brian|now im mad|Alice
+MESSAGE|DM|0|2025-12-01T22:52:57.781484400|Alice|joe jackson|Brian
+MESSAGE|DM|1|2025-12-02T00:35:02.559221700|Bob|hello test message|Admin
+MESSAGE|DM|1|2025-12-02T00:35:14.169364900|Admin|hello|Bob
+MESSAGE|DM|1|2025-12-02T21:42:39.166299600|Admin|hi|Bob
+MESSAGE|DM|2|2025-12-02T00:37:13.818960400|TestUser|sup|Admin
+MESSAGE|DM|2|2025-12-02T21:42:42.353178400|Admin|sf|TestUser
+MESSAGE|DM|3|2025-12-02T00:38:13.819370900|TestUser|group|Bob
+MESSAGE|DM|4|2024-01-15T11:00|Brian|Hey Bob, are we still meeting at 2pm?|Bob
+MESSAGE|DM|4|2024-01-15T11:02:30|Bob|Yes, see you then!|Brian
+MESSAGE|DM|4|2025-12-01T19:58:04.471553500|Brian|just us two|Bob
+MESSAGE|DM|4|2025-12-01T20:08:36.168009400|Bob|lets hope it works|Brian
+MESSAGE|DM|4|2025-12-01T20:10:48.977939500|Brian|FUCK THIS SHIT IT DOESNT WORK|Bob
+MESSAGE|DM|4|2025-12-01T20:35:11.940344300|Bob|ik this sucks|Brian
+MESSAGE|DM|4|2025-12-01T20:41:45.228643700|Brian|but it works now|Bob
+MESSAGE|DM|4|2025-12-01T20:41:55.425709300|Brian|jk it still doesnt|Bob
+MESSAGE|DM|4|2025-12-01T20:47:13.939753|Brian|but now it does right?|Bob
+MESSAGE|DM|4|2025-12-01T21:07:51.142150200|Brian|it will never work at this point|Bob
+MESSAGE|DM|5|2025-12-02T00:19:29.407526200|Brian|hey man|Loudrock
+MESSAGE|DM|5|2025-12-02T00:19:45.860154600|Loudrock|yeah whats up|Brian
+MESSAGE|DM|6|2025-12-01T23:21:04.222027200|Loudrock|hi|Alice
+MESSAGE|DM|6|2025-12-01T23:21:04.222027200|Loudrock|hi|Alice
+MESSAGE|DM|7|2024-01-15T09:00|Admin|Welcome to the system, Alice!|Alice
+MESSAGE|DM|7|2024-01-15T09:15|Alice|Thank you!|Admin
+MESSAGE|DM|7|2025-12-01T21:58:44.606785|Alice|first time chatter|Admin
+MESSAGE|DM|7|2025-12-01T22:08:11.296908900|Alice|last time chatter|Admin
+MESSAGE|DM|7|2025-12-01T22:09:26.295482300|Admin|i would too|Alice
+MESSAGE|DM|7|2025-12-01T22:10:19.014478600|Alice|i mean its not even sending|Admin
+MESSAGE|DM|7|2025-12-01T22:31:36.356135600|Admin|yup|Alice
+MESSAGE|DM|7|2025-12-01T22:32:09.760873800|Alice|fucking god being rude works|Admin
+MESSAGE|DM|7|2025-12-02T21:42:50.063431600|Admin|it works now?|Alice
+MESSAGE|DM|8|2024-01-15T13:00|Bob|Can you review my code?|Alice
+MESSAGE|DM|8|2024-01-15T13:30|Alice|Sure, send it over|Bob
+MESSAGE|DM|8|2025-12-01T20:11:24.626051400|Bob|i mean it saves why wouldnt it update?|Alice
+MESSAGE|DM|8|2025-12-01T20:27:04.513122100|Bob|does it update now?|Alice
+MESSAGE|DM|8|2025-12-01T20:32:59.999281600|Bob|nope why would it|Alice
+MESSAGE|DM|8|2025-12-01T20:33:43.124967100|Bob|because it doesnt work|Alice
+MESSAGE|DM|8|2025-12-02T09:08:55.340981700|Alice|still working?|Bob
+MESSAGE|DM|9|2025-12-01T22:39:16.722410700|Brian|peer to peer testing|Admin
+MESSAGE|DM|9|2025-12-01T22:39:16.722410700|Brian|peer to peer testing|Admin
+MESSAGE|DM|9|2025-12-01T22:39:28.538757100|Admin|it was just working|Brian
+MESSAGE|DM|9|2025-12-01T22:39:44.070784900|Brian|i know|Admin
+MESSAGE|DM|9|2025-12-01T22:39:55.528608200|Brian|for some reason it doesnt  work all the time?|Admin
+MESSAGE|DM|9|2025-12-01T22:40:05.359284100|Admin|maybe its the speed im typing|Brian
+MESSAGE|DM|9|2025-12-01T22:41:23.221393100|Admin|not sure|Brian
+MESSAGE|DM|9|2025-12-01T22:41:33.408914200|Brian|wait this is behind?|Admin
+MESSAGE|DM|9|2025-12-01T22:43:08.436605200|Brian|this one works rn|Admin
+MESSAGE|DM|9|2025-12-01T22:43:17.771500300|Brian|but this one makes a new chat?|Admin
+MESSAGE|DM|9|2025-12-01T22:46:04.517838200|Admin|we cant just do it twice|Brian
+MESSAGE|DM|9|2025-12-01T23:49:40.483756300|Brian|what up?|Admin
+MESSAGE|DM|9|2025-12-01T23:49:57.675748700|Admin|not much dude|Brian
+MESSAGE|DM|9|2025-12-01T23:50:20.244979900|Admin|there is no pop up is there?|Brian
+MESSAGE|DM|9|2025-12-01T23:50:28.869536400|Brian|ahh|Admin
+MESSAGE|DM|9|2025-12-01T23:53:42.366079700|Admin|give it to me|Brian
+MESSAGE|DM|9|2025-12-01T23:54:01.103269900|Brian|i dont see it tho|Admin
+MESSAGE|DM|9|2025-12-02T21:42:08.412054100|Admin|still works?|Brian
+MESSAGE|DM|9|2025-12-02T21:42:20.881897300|Admin|nope|Brian
+MESSAGE|DM|9|2025-12-02T21:42:30.399809800|Admin|asd|Brian
+MESSAGE|DM|9|2025-12-02T21:49:43.167540200|Admin|yup|Brian
+MESSAGE|DM|9|2025-12-02T21:49:54.353288800|Brian|all here|Admin
+MESSAGE|DM|9|2025-12-02T21:58:58.366111100|Brian|here|Admin
+MESSAGE|DM|10|2025-12-01T23:23:49.256922200|Loudrock|boobs|Bob
+MESSAGE|DM|10|2025-12-02T00:23:58.529471600|Loudrock|bro just send them|Bob
+MESSAGE|DM|10|2025-12-02T08:58:43.324982500|Bob|no man thats wierd|Loudrock
+MESSAGE|DM|10|2025-12-02T09:22:48.820123800|Bob|this still works right?|Loudrock
+MESSAGE|GROUP|0|2024-01-15T12:00|Brian|Team meeting reminder: 3pm today|Alice,Bob
+MESSAGE|GROUP|0|2024-01-15T12:05|Alice|Got it, thanks!|Brian,Bob
+MESSAGE|GROUP|0|2024-01-15T12:06:30|Bob|I'll be there|Brian,Alice
+MESSAGE|GROUP|0|2025-12-01T19:57:40.845025600|Brian|does this one work?|Bob,Alice
+MESSAGE|GROUP|0|2025-12-01T21:46:22.761865300|Brian|its never going to work|Bob,Alice
+MESSAGE|GROUP|1|2024-01-15T14:00|Admin|Project update: Phase 1 is complete|Brian,Alice,Bob
+MESSAGE|GROUP|1|2024-01-15T14:10|Brian|Great work everyone!|Alice,Bob,Admin
+MESSAGE|GROUP|1|2024-01-15T14:12|Alice|Excellent!|Brian,Bob,Admin
+MESSAGE|GROUP|1|2025-12-01T19:57:16.062148800|Brian|Wow guys this works|Bob,Alice,Admin
+MESSAGE|GROUP|1|2025-12-01T19:59:38.272089700|Bob|it just doesnt update the page. idk when tho|Brian,Alice,Admin
+MESSAGE|GROUP|1|2025-12-01T21:21:35.827666200|Brian|its going to work now|Bob,Alice,Admin
+MESSAGE|GROUP|1|2025-12-01T21:22:30.147363200|Brian|nope still  doesnt work|Bob,Alice,Admin
+MESSAGE|GROUP|1|2025-12-01T21:27:01.886366800|Alice|yup|Brian,Bob,Admin
+MESSAGE|GROUP|1|2025-12-01T21:27:28.853924|Alice|just show me just show me the damn message|Brian,Bob,Admin
+MESSAGE|GROUP|1|2025-12-01T21:34:13.257029500|Alice|lets see it  update|Brian,Bob,Admin
+MESSAGE|GROUP|1|2025-12-01T21:40:39.605274700|Admin|ok you little shit update|Brian,Bob,Alice
+MESSAGE|GROUP|1|2025-12-01T21:45:37.852331200|Brian|but it works now?|Bob,Alice,Admin
+MESSAGE|GROUP|1|2025-12-01T22:17:53.516192800|Bob|nope still not|Brian,Alice,Admin
+MESSAGE|GROUP|1|2025-12-01T22:24:50.747042800|Brian|yay|Bob,Alice,Admin
+MESSAGE|GROUP|1|2025-12-01T22:26:03.921001300|Admin|not yay|Brian,Bob,Alice
+MESSAGE|GROUP|1|2025-12-01T22:37:53.251399600|Brian|it should work now|Bob,Alice,Admin
+MESSAGE|GROUP|1|2025-12-01T22:38:09.580765600|Admin|it was working|Brian,Bob,Alice
+MESSAGE|GROUP|1|2025-12-01T22:38:38.663475300|Brian|does it?|Bob,Alice,Admin
+MESSAGE|GROUP|1|2025-12-01T22:38:48.012661|Admin|jank?|Brian,Bob,Alice
+MESSAGE|GROUP|1|2025-12-01T22:38:57.313355700|Brian|why does it swap|Bob,Alice,Admin
+MESSAGE|GROUP|1|2025-12-01T22:40:49.762265100|Brian|does it work now?|Bob,Alice,Admin
+MESSAGE|GROUP|1|2025-12-01T22:41:00.951358500|Admin|no group chats are messed up|Brian,Bob,Alice
+MESSAGE|GROUP|1|2025-12-01T22:46:40.301695|Brian|group chats dont work|Bob,Alice,Admin
+MESSAGE|GROUP|1|2025-12-01T22:46:49.151069300|Admin|no they dont|Brian,Bob,Alice
+MESSAGE|GROUP|1|2025-12-01T22:53:11.835246700|Brian|it should be fine now right|Bob,Alice,Admin
+MESSAGE|GROUP|1|2025-12-01T22:53:20.430444800|Alice|yeah it is|Brian,Bob,Admin
+MESSAGE|GROUP|1|2025-12-02T09:09:05.082433|Bob|group chat|Brian,Alice,Admin
+MESSAGE|GROUP|1|2025-12-02T21:50:13.546369400|Admin|team|Brian,Bob,Alice
+MESSAGE|GROUP|1|2025-12-02T21:50:16.808064400|Brian|asf|Bob,Alice,Admin
+MESSAGE|GROUP|1|2025-12-02T21:50:19.720960100|Brian|adf|Bob,Alice,Admin
+MESSAGE|GROUP|1|2025-12-02T21:50:20.935762800|Brian|asdf|Bob,Alice,Admin
+MESSAGE|GROUP|1|2025-12-02T21:50:23.445323200|Brian|qqweqqr|Bob,Alice,Admin
+MESSAGE|GROUP|2|2024-01-15T08:00|Admin|System maintenance scheduled for tonight|Brian
+MESSAGE|GROUP|2|2024-01-15T08:15|Brian|Understood, I'll prepare|Admin
+MESSAGE|GROUP|3|2025-12-01T23:20:00.562532|Admin|first time making new conversation|Loudrock,Alice
+MESSAGE|GROUP|3|2025-12-01T23:20:00.562532|Admin|first time making new conversation|Loudrock,Alice
+MESSAGE|GROUP|3|2025-12-01T23:20:18.013469500|Admin|double send?|Loudrock,Alice
+MESSAGE|GROUP|3|2025-12-02T21:43:03.696862100|Admin|adf|Alice,Loudrock

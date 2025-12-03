@@ -1,11 +1,12 @@
 package server;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.*;
 //import User
 //import Message
 
-public class DirectMessage {
+public class DirectMessage implements Serializable {
    private List<String> groupUsers = new ArrayList<>();
    private List<Message> messages = new ArrayList<>();
    static private int count = 0;
@@ -22,12 +23,11 @@ public class DirectMessage {
 	   groupUsers.add(recipient.getUsername());
 	   
 	   //initial message create it
-      Message msg = new Message(
-            java.time.LocalDateTime.now(),
-            initialMessage, // message text
-            sender.getUsername(), // sender username
-            java.util.List.of(recipient.getUsername()));
-       //add message to list
+	   Message msg = new Message(java.time.LocalDateTime.now(),
+			   initialMessage,
+			   sender.getUsername(), 
+			   java.util.List.of(recipient.getUsername()));
+	   //add message to list
 	   messages.add(msg);
    }
    

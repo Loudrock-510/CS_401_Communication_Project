@@ -243,7 +243,11 @@ public class PacketHandler {
                     
                     //send to all participants
                     List<String> allParticipants = group.getGroupUsers();
+<<<<<<< HEAD
                     sendGroupsToParticipant(allParticipants, senderUser.getUsername(), handler);
+=======
+                    sendGroupUpdateToParticipants(group, allParticipants, senderUser.getUsername(), handler);
+>>>>>>> 794bd1ace3e5063890adc28763198620dc184d44
                     
                 } else if (groupObj instanceof DirectMessage) {
                     DirectMessage dm = (DirectMessage) groupObj;
@@ -263,13 +267,70 @@ public class PacketHandler {
                     
                     //send to all participants
                     List<String> allParticipants = dm.getGroupUsers();
+<<<<<<< HEAD
                     sendGroupsToParticipant(allParticipants, senderUser.getUsername(), handler);
+=======
+                    sendGroupUpdateToParticipants(dm, allParticipants, senderUser.getUsername(), handler);
+>>>>>>> 794bd1ace3e5063890adc28763198620dc184d44
                 }
             }
         } catch (Exception e) {
             sendError(handler, "MESSAGES", "Server error processing message");
         }
     }
+<<<<<<< HEAD
+=======
+  
+    private void sendGroupUpdateToParticipants(Object groupObj, List<String> allParticipants, String senderName, ClientHandler handler) {
+        if (groupObj == null) {
+            return;
+        }
+        
+        // Create a fresh copy of the group/DM with current messages
+        Object freshGroup = null;
+        if (groupObj instanceof Group) {
+            Group g = (Group) groupObj;
+            List<String> users = new ArrayList<>(g.getGroupUsers());
+            List<Message> msgs = new ArrayList<>(g.getMessages());
+            freshGroup = new Group(users, msgs);
+            try {
+                java.lang.reflect.Field uidField = Group.class.getDeclaredField("groupUID");
+                uidField.setAccessible(true);
+                uidField.set(freshGroup, g.getGroupUID());
+            } catch (Exception e) {
+            }
+        } else if (groupObj instanceof DirectMessage) {
+            DirectMessage dm = (DirectMessage) groupObj;
+            List<String> users = new ArrayList<>(dm.getGroupUsers());
+            List<Message> msgs = new ArrayList<>(dm.getMessage());
+            freshGroup = new DirectMessage(users, msgs);
+            try {
+                java.lang.reflect.Field uidField = DirectMessage.class.getDeclaredField("chatUID");
+                uidField.setAccessible(true);
+                uidField.set(freshGroup, dm.getChatUID());
+            } catch (Exception e) {
+            }
+        }
+        
+        if (freshGroup == null) {
+            return;
+        }
+        
+        // Send UPDATE packet with just this group
+        Packet updatePacket = new Packet(Type.GROUP, "UPDATE", List.of(freshGroup));
+        
+        for (String participantName : allParticipants) {
+            if (participantName.equals(senderName)) {
+                handler.send(updatePacket);
+            } else {
+                Optional<User> participant = server.findUserByUsername(participantName);
+                if (participant.isPresent()) {
+                    server.sendToClient(participant.get(), updatePacket);
+                }
+            }
+        }
+    }
+>>>>>>> 794bd1ace3e5063890adc28763198620dc184d44
     
     private void sendGroupsToParticipant(List<String> allParticipants, String senderName, ClientHandler handler) {
         for (String participantName : allParticipants) {
