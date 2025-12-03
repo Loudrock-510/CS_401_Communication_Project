@@ -3,7 +3,6 @@ package server;
 import java.io.*;
 import java.net.*;
 import java.time.LocalDateTime;
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.concurrent.*; //package for multithreading (ExecutorService, ThreadPool, ConcurrentHashMap)
 
@@ -19,10 +18,8 @@ public class Server {
 	private List<User> users = new ArrayList<>();
 	private List<DirectMessage> directChats = new ArrayList<>();
 	private List<Group> groups = new ArrayList<>();
-	//private List<Log> logs = new ArrayList<>();
 	private List<Message> masterLog = new ArrayList<>(); // all msgs sent thru server
 	
-	private Boolean modified; //UPDATE TO TRUE ANY TIME ADDING MESSAGES TO directChats OR groups********
 	private Boolean modified; //UPDATE TO TRUE ANY TIME ADDING MESSAGES TO directChats OR groups********
 	private final String msgsFile = "AllChats.txt"; //filename to write messages to
 	
@@ -38,17 +35,10 @@ public class Server {
 	private final Map<String, Socket> activeClients = new ConcurrentHashMap<>();
 	//map storing ObjectOutputStreams for each client (must reuse, not recreate)
 	private final Map<String, ObjectOutputStream> clientOutputStreams = new ConcurrentHashMap<>();
-	//Using username as key since User objects don't have equals/hashCode
-	private final Map<String, Socket> activeClients = new ConcurrentHashMap<>();
-	//map storing ObjectOutputStreams for each client (must reuse, not recreate)
-	private final Map<String, ObjectOutputStream> clientOutputStreams = new ConcurrentHashMap<>();
 	
 	
 	//constructor
 	public Server(int port) {
-		modified = false;
-		seedUsers();
-		loadGroupsFromFile(); // Load groups and messages from file
 		modified = false;
 		seedUsers();
 		loadGroupsFromFile(); // Load groups and messages from file
@@ -180,14 +170,7 @@ public class Server {
 	public synchronized void broadcast(Packet packet) {
 		//loop thru every connected clients output stream
 		for(Map.Entry<String, ObjectOutputStream> entry : clientOutputStreams.entrySet()) {
-		//loop thru every connected clients output stream
-		for(Map.Entry<String, ObjectOutputStream> entry : clientOutputStreams.entrySet()) {
 			try {
-				ObjectOutputStream out = entry.getValue();
-				if(out != null) {
-					out.writeObject(packet);
-					out.flush(); //send immediately
-				}
 				ObjectOutputStream out = entry.getValue();
 				if(out != null) {
 					out.writeObject(packet);
@@ -201,8 +184,6 @@ public class Server {
 	
 	//targetting packet to specific client
 	public synchronized void sendToClient(User targetUser, Packet packet) {
-		ObjectOutputStream out = clientOutputStreams.get(targetUser.getUsername());
-		if(out != null) {
 		ObjectOutputStream out = clientOutputStreams.get(targetUser.getUsername());
 		if(out != null) {
 			try {
@@ -221,16 +202,10 @@ public class Server {
 		activeClients.put(u.getUsername(), s);
 		clientOutputStreams.put(u.getUsername(), out);
 		System.out.println("SERVER: Registered client: " + u.getUsername() + " (Total active clients: " + activeClients.size() + ")");
-	public synchronized void registeredClient(User u, Socket s, ObjectOutputStream out) {
-		activeClients.put(u.getUsername(), s);
-		clientOutputStreams.put(u.getUsername(), out);
-		System.out.println("SERVER: Registered client: " + u.getUsername() + " (Total active clients: " + activeClients.size() + ")");
 	}
 	
 	//remove client from list when they disconnect
 	public synchronized void removeClient(User u) {
-		activeClients.remove(u.getUsername());
-		clientOutputStreams.remove(u.getUsername());
 		activeClients.remove(u.getUsername());
 		clientOutputStreams.remove(u.getUsername());
 	}
@@ -474,7 +449,6 @@ public class Server {
 	}
 
 	public String toString(List<Message> msgs) {
-	public String toString(List<Message> msgs) {
 		String s = "";
 		for (int i = 0; i < msgs.size()-1; i++) {
 			s += msgs.get(i).toString() + "\n\n";
@@ -484,16 +458,8 @@ public class Server {
 	}
 
 	private void saveMsgs() {
-	private void saveMsgs() {
 		String buf = "";
 		File file = new File(msgsFile);
-		try {
-			if (file.exists()) {
-				file.delete();
-			}
-			file.createNewFile();
-		} catch (IOException e) {
-			return;
 		try {
 			if (file.exists()) {
 				file.delete();
@@ -518,10 +484,6 @@ public class Server {
 				buf = groups.get(groups.size() - 1).toString();
 				fw.write(buf);
 			}
-			if (!groups.isEmpty()) {
-				buf = groups.get(groups.size() - 1).toString();
-				fw.write(buf);
-			}
 			fw.close();
 		} catch (IOException e) {
 		//todo auto-generated catch block
@@ -530,7 +492,6 @@ public class Server {
 			//e.printstacktrace();
 			return;
 		}
-		modified = false;
 		modified = false;
 	}
 

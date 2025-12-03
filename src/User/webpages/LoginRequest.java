@@ -19,8 +19,11 @@ public class LoginRequest {
             output.write(data);
             output.flush();
 
+            System.out.println("Login packet sent: " + loginPacket);
+
             socket.close();
         } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 }
