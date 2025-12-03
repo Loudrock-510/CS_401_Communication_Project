@@ -243,7 +243,11 @@ public class PacketHandler {
                     
                     //send to all participants
                     List<String> allParticipants = group.getGroupUsers();
+<<<<<<< HEAD
+                    sendGroupsToParticipant(allParticipants, senderUser.getUsername(), handler);
+=======
                     sendGroupUpdateToParticipants(group, allParticipants, senderUser.getUsername(), handler);
+>>>>>>> 794bd1ace3e5063890adc28763198620dc184d44
                     
                 } else if (groupObj instanceof DirectMessage) {
                     DirectMessage dm = (DirectMessage) groupObj;
@@ -263,13 +267,19 @@ public class PacketHandler {
                     
                     //send to all participants
                     List<String> allParticipants = dm.getGroupUsers();
+<<<<<<< HEAD
+                    sendGroupsToParticipant(allParticipants, senderUser.getUsername(), handler);
+=======
                     sendGroupUpdateToParticipants(dm, allParticipants, senderUser.getUsername(), handler);
+>>>>>>> 794bd1ace3e5063890adc28763198620dc184d44
                 }
             }
         } catch (Exception e) {
             sendError(handler, "MESSAGES", "Server error processing message");
         }
     }
+<<<<<<< HEAD
+=======
   
     private void sendGroupUpdateToParticipants(Object groupObj, List<String> allParticipants, String senderName, ClientHandler handler) {
         if (groupObj == null) {
@@ -320,6 +330,7 @@ public class PacketHandler {
             }
         }
     }
+>>>>>>> 794bd1ace3e5063890adc28763198620dc184d44
     
     private void sendGroupsToParticipant(List<String> allParticipants, String senderName, ClientHandler handler) {
         for (String participantName : allParticipants) {

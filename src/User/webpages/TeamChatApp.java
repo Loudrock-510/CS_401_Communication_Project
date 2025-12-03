@@ -10,6 +10,7 @@ import server.Message;
 import java.util.List;
 
 public class TeamChatApp extends JFrame {
+    public static final String PortReuqest = "portRequest";
     public static final String LOGIN = "login";
     public static final String SEARCH_CHAT = "searchChat";
     public static final String CHATROOM = "chatroom";
@@ -20,8 +21,13 @@ public class TeamChatApp extends JFrame {
     private final CardLayout cards = new CardLayout();
     private final JPanel root = new JPanel(cards);
 
+<<<<<<< HEAD
+    private Client client;
+    private PortRequest portRequest;
+=======
 
     private Client client; // Client instance for server communication
+>>>>>>> 794bd1ace3e5063890adc28763198620dc184d44
     private Login login;
     private SearchChat searchChat;
     private Chatroom chatroom;
@@ -44,7 +50,9 @@ public class TeamChatApp extends JFrame {
         searchIT = new SearchIT(this);
         createUser = new CreateUser(this);
         login = new Login(this);
+        portRequest = new PortRequest(this);
 
+        root.add(portRequest, PortReuqest);
         root.add(login, LOGIN);
         root.add(searchChat, SEARCH_CHAT);
         root.add(chatroom, CHATROOM);
@@ -57,13 +65,10 @@ public class TeamChatApp extends JFrame {
         setLocationRelativeTo(null);
     }
 
-    /**
-     * Initializes the Client connection to the server in a background thread.
-     * This prevents blocking the GUI during connection.
-     */
-    private void initializeClient() {
+    public void initializeClient(int port) {
         Thread clientThread = new Thread(() -> {
-            client = Client.createAndConnect();
+            client = Client.createAndConnect(port);
+
             if (client == null) {
                 SwingUtilities.invokeLater(() -> {
                     JOptionPane.showMessageDialog(this,
@@ -211,6 +216,22 @@ public class TeamChatApp extends JFrame {
         }
     }
 
+    void notifyGroupUpdated(Object groupObj) {
+        if (groupObj == null) {
+            return;
+        }
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> notifyGroupUpdated(groupObj));
+            return;
+        }
+        if (searchChat != null) {
+            searchChat.refreshGroups();
+        }
+        if (chatroom != null) {
+            chatroom.updateGroupIfOpen(groupObj);
+        }
+    }
+
     void showSearchIT() { showCard(SEARCH_IT); }
     void showCreateUser() { showCard(CREATE_USER); }
     void showLogin() { showCard(LOGIN); }
@@ -219,7 +240,7 @@ public class TeamChatApp extends JFrame {
         SwingUtilities.invokeLater(() -> {
             TeamChatApp app = new TeamChatApp();
             app.setVisible(true);
-            app.showCard(LOGIN);
+            app.showCard(PortReuqest);
         });
     }
 }

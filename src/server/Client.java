@@ -4,6 +4,8 @@ import java.util.*;
 import java.net.*;
 import java.time.LocalDateTime;
 import java.io.*;
+import java.util.Scanner;
+import java.util.Collections;
 
 public class Client {
 
@@ -69,16 +71,13 @@ public class Client {
 	}
 
 	// METHODS
-
 	// ************************************************************
 	// SENDING NEW USER
 	// for creating a new user
 	// only accessible by Admin/IT
 	// ************************************************************
 	public void sendUser(String newUsername, String newPassword, boolean isAdmin) throws IOException {
-		List<User> users = new ArrayList<>();
 		User newUser = new User(newUsername, newPassword, isAdmin);
-		users.add(newUser);
 		Packet newUserRequest = new Packet(Type.USERS, "REQUEST", List.of(newUser));
 		// send packet
 		out.writeObject(newUserRequest);
