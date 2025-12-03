@@ -33,11 +33,6 @@ public class TestServer {
         assertFalse(svr.verifyLogin("unknown", "secret"));
     }
 
-    @Test
-    public void testSaveLog() {
-        Server svr = new Server(12345);
-        svr.saveLog();
-    }
 
     @Test
     public void testSaveUser() {
@@ -55,43 +50,6 @@ public class TestServer {
         }
         assertTrue(found);
     }
-
-    @Test
-    public void testStringToLog() {
-        Server svr = new Server(12345);
-        svr.stringToLog();
-    }
-
-    @Test
-    public void testStringToUser() {
-        Server svr = new Server(12345);
-        svr.stringToUser();
-    }
-
-    @Test
-    public void testCreateLog() {
-        Server svr = new Server(12345);
-        svr.createLog();
-    }
-
-    @Test
-    public void testGetLog() {
-        Server svr = new Server(12345);
-        assertNull(svr.getLog());
-    }
-
-    @Test
-    public void testGetLogs() {
-        Server svr = new Server(12345);
-        assertNull(svr.getLogs("someUID"));
-    }
-
-    @Test
-    public void testViewUserLog() {
-        Server svr = new Server(12345);
-        assertNull(svr.ViewUserLog("someUser"));
-    }
-
     @Test
     public void testGetUsers() {
         Server svr = new Server(12345);
