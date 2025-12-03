@@ -3,7 +3,14 @@ package User.webpages;
 import java.awt.*;
 import javax.swing.*;
 
+import server.Client;
+import server.Group;
+import server.DirectMessage;
+import server.Message;
+import java.util.List;
+
 public class TeamChatApp extends JFrame {
+    public static final String PortReuqest = "portRequest";
     public static final String LOGIN = "login";
     public static final String SEARCH_CHAT = "searchChat";
     public static final String CHATROOM = "chatroom";
@@ -14,11 +21,8 @@ public class TeamChatApp extends JFrame {
     private final CardLayout cards = new CardLayout();
     private final JPanel root = new JPanel(cards);
 
-    private boolean isIT = false; // determines if user is IT
-    //private User currentUser;
-    //this is to keep track of the logged in user, username, password, isIT, etc.
-    //User getCurrentUser() { return currentUser; }
-
+    private Client client;
+    private PortRequest portRequest;
     private Login login;
     private SearchChat searchChat;
     private Chatroom chatroom;
@@ -38,7 +42,9 @@ public class TeamChatApp extends JFrame {
         searchIT = new SearchIT(this);
         createUser = new CreateUser(this);
         login = new Login(this);
+        portRequest = new PortRequest(this);
 
+        root.add(portRequest, PortReuqest);
         root.add(login, LOGIN);
         root.add(searchChat, SEARCH_CHAT);
         root.add(chatroom, CHATROOM);
@@ -51,20 +57,96 @@ public class TeamChatApp extends JFrame {
         setLocationRelativeTo(null);
     }
 
-    void showCard(String name) { cards.show(root, name); }
+    public void initializeClient(int port) {
+        Thread clientThread = new Thread(() -> {
+            client = Client.createAndConnect(port);
 
-    void setIT(boolean it) {
-        this.isIT = it;
-        refreshITVisibility();
+            if (client == null) {
+                SwingUtilities.invokeLater(() -> {
+                    JOptionPane.showMessageDialog(this,
+                        "Failed to connect to server.\n" +
+                        "Please ensure the server is running on port " + port + ".",
+                        "Connection Error",
+                        JOptionPane.ERROR_MESSAGE);
+                });
+            } else {
+                client.setGroupUpdateCallback(() -> {
+                    SwingUtilities.invokeLater(() -> {
+                        if (searchChat != null) {
+                            searchChat.refreshGroups();
+                        }
+
+                        if (chatroom != null && chatroom.getCurrentGroup() != null) {
+                            Object currentGroup = chatroom.getCurrentGroup();
+                            int currentUID = -1;
+                            boolean isGroup = false;
+
+                            if (currentGroup instanceof Group) {
+                                currentUID = ((Group) currentGroup).getGroupUID();
+                                isGroup = true;
+                            } else if (currentGroup instanceof DirectMessage) {
+                                currentUID = ((DirectMessage) currentGroup).getChatUID();
+                                isGroup = false;
+                            }
+
+                            if (currentUID >= 0) {
+                                Object latestGroup = null;
+                                if (isGroup) {
+                                    latestGroup = client.getGroupById(currentUID);
+                                } else {
+                                    latestGroup = client.getDirectMessageById(currentUID);
+                                }
+
+                                if (latestGroup != null) {
+                                    chatroom.updateGroupIfOpen(latestGroup);
+                                }
+                            }
+                        }
+
+                        Object updatedGroup = client.getLastUpdatedGroup();
+                        if (updatedGroup != null) {
+                            notifyGroupUpdated(updatedGroup);
+                        }
+                    });
+                });
+
+                Thread refreshCheck = new Thread(() -> {
+                    try {
+                        Thread.sleep(3000);
+                        SwingUtilities.invokeLater(() -> {
+                            if (client != null && client.getMyUser() != null && searchChat != null) {
+                                searchChat.refreshGroups();
+                            }
+                        });
+                    } catch (InterruptedException e) {}
+                });
+                refreshCheck.setDaemon(true);
+                refreshCheck.start();
+            }
+        });
+        clientThread.setDaemon(true);
+        clientThread.start();
     }
 
-    boolean isIT() { return isIT; }
+    public Client getClient() {
+        return client;
+    }
 
-    /** Refreshes visibility of all IT-only UI elements */
-    private void refreshITVisibility() {
-        if (searchChat != null) searchChat.refreshITVisibility(isIT);
-        if (chatroom != null) chatroom.refreshITVisibility(isIT);
-        if (chatroomIT != null) chatroomIT.refreshITVisibility(isIT);
+    void showCard(String name) {
+        cards.show(root, name);
+        root.revalidate();
+        root.repaint();
+    }
+
+    private void refreshAdminVisibility() {
+        boolean isAdmin = (client != null && client.getMyUser() != null && client.getMyUser().isAdmin());
+        if (searchChat != null) searchChat.refreshAdminVisibility(isAdmin);
+        if (chatroom != null) chatroom.refreshAdminVisibility(isAdmin);
+        if (chatroomIT != null) chatroomIT.refreshAdminVisibility(isAdmin);
+    }
+
+    boolean isAdmin() {
+        return (client != null && client.getMyUser() != null && client.getMyUser().isAdmin());
     }
 
     void openUserChat(String otherUser, String[] messages) {
@@ -72,14 +154,40 @@ public class TeamChatApp extends JFrame {
         showCard(CHATROOM);
     }
 
-    void openITChat(String otherUser, String[] messages) {
+    void openGroupChat(Object groupObj) {
+        if (groupObj != null) {
+            chatroom.loadGroupConversation(groupObj);
+            showCard(CHATROOM);
+        }
+    }
+
+    void openITChat(String otherUser, List<Message> messages) {
         chatroomIT.loadConversation(otherUser, messages);
         showCard(CHATROOM_IT);
     }
 
     void showSearchChat() {
-        refreshITVisibility();
+        refreshAdminVisibility();
+        if (searchChat != null) {
+            searchChat.refreshGroups();
+        }
         showCard(SEARCH_CHAT);
+    }
+
+    void notifyGroupUpdated(Object groupObj) {
+        if (groupObj == null) {
+            return;
+        }
+        if (!SwingUtilities.isEventDispatchThread()) {
+            SwingUtilities.invokeLater(() -> notifyGroupUpdated(groupObj));
+            return;
+        }
+        if (searchChat != null) {
+            searchChat.refreshGroups();
+        }
+        if (chatroom != null) {
+            chatroom.updateGroupIfOpen(groupObj);
+        }
     }
 
     void showSearchIT() { showCard(SEARCH_IT); }
@@ -90,10 +198,7 @@ public class TeamChatApp extends JFrame {
         SwingUtilities.invokeLater(() -> {
             TeamChatApp app = new TeamChatApp();
             app.setVisible(true);
-            app.showCard(LOGIN);
-            //to make default logout
-            //app.setDefaultCloseOperation(Client.sendLogout());
-            app.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+            app.showCard(PortReuqest);
         });
     }
 }

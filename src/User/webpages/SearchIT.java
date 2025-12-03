@@ -2,6 +2,9 @@ package User.webpages;
 
 import java.awt.*;
 import javax.swing.*;
+import server.Client;
+import server.Message;
+import java.util.List;
 
 class SearchIT extends JPanel {
     private final TeamChatApp app;
@@ -55,13 +58,59 @@ class SearchIT extends JPanel {
         searchButton.addActionListener(e -> {
             String query = searchField.getText().trim();
             if (query.isEmpty()) {
-                JOptionPane.showMessageDialog(this, "Enter text to search.");
-            } else {
-                app.openITChat(query, new String[]{ "(IT view)", "msg 1", "msg 2" });
+                JOptionPane.showMessageDialog(this, "Enter a username to search.");
+                return;
+            }
+            
+            if (!app.isAdmin()) {
+                JOptionPane.showMessageDialog(this, 
+                    "Access denied. Admin privileges required.", 
+                    "Access Denied", 
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            Client client = app.getClient();
+            if (client == null || client.getMyUser() == null) {
+                JOptionPane.showMessageDialog(this, 
+                    "Not connected to server. Please log in first.", 
+                    "Connection Error", 
+                    JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+            
+            //request all messages by this user from server
+            try {
+                client.requestUserMessages(query);
+                // Wait for response
+                Thread.sleep(1000);
+                List<Message> messages = client.getUserMessages(query);
+                if (messages == null || messages.isEmpty()) {
+                    JOptionPane.showMessageDialog(this, 
+                        "User not found or has no messages.", 
+                        "Not Found", 
+                        JOptionPane.ERROR_MESSAGE);
+                } else {
+                    app.openITChat(query, messages);
+                }
+            } catch (Exception ex) {
+                JOptionPane.showMessageDialog(this, 
+                    "Error retrieving messages: " + ex.getMessage(), 
+                    "Error", 
+                    JOptionPane.ERROR_MESSAGE);
             }
         });
 
         backButton.addActionListener(e -> app.showSearchChat());
-        createUser.addActionListener(e -> app.showCreateUser());
+        createUser.addActionListener(e -> {
+            if (app.isAdmin()) {
+                app.showCreateUser();
+            } else {
+                JOptionPane.showMessageDialog(this, 
+                    "Access denied. Admin privileges required.", 
+                    "Access Denied", 
+                    JOptionPane.ERROR_MESSAGE);
+            }
+        });
     }
 }

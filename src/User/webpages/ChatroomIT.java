@@ -2,6 +2,8 @@ package User.webpages;
 
 import java.awt.*;
 import javax.swing.*;
+import java.util.List;
+import server.Message;
 
 class ChatroomIT extends JPanel {
     private final TeamChatApp app;
@@ -35,20 +37,28 @@ class ChatroomIT extends JPanel {
         toSearch.addActionListener(e -> app.showSearchChat());
     }
 
-    void loadConversation(String otherUser, String[] recentMessages) {
-        title.setText(otherUser + "'s Chat (IT)");
+    void loadConversation(String otherUser, List<Message> messages) {
+        title.setText(otherUser + "'s Messages (Admin View)");
         listPanel.removeAll();
-        for (String m : recentMessages) {
-            JLabel lbl = new JLabel(": " + m);
-            listPanel.add(lbl);
-            listPanel.add(Box.createVerticalStrut(4));
+        
+        if (messages == null || messages.isEmpty()) {
+            JLabel noMessagesLabel = new JLabel("No messages found.");
+            noMessagesLabel.setAlignmentX(Component.CENTER_ALIGNMENT);
+            listPanel.add(noMessagesLabel);
+        } else {
+            for (Message msg : messages) {
+                String displayText = "[" + msg.getTimestamp() + "] " + msg.getSender() + ": " + msg.getMessage();
+                JLabel lbl = new JLabel(displayText);
+                lbl.setAlignmentX(Component.LEFT_ALIGNMENT);
+                listPanel.add(lbl);
+                listPanel.add(Box.createVerticalStrut(4));
+            }
         }
         revalidate();
         repaint();
     }
 
-    void refreshITVisibility(boolean isIT) {
-        // Hide entire IT chat button if user is not IT
-        toSearch.setVisible(isIT);
+    void refreshAdminVisibility(boolean isAdmin) {
+        toSearch.setVisible(isAdmin);
     }
 }
