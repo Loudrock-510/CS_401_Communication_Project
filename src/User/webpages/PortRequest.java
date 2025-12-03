@@ -25,16 +25,16 @@ class PortRequest extends JPanel {
         inputPanel.setPreferredSize(new Dimension(600, 380));
         inputPanel.setAlignmentX(Component.CENTER_ALIGNMENT);
 
-        JTextField portTextField = new JTextField(20);
+        JTextField IPAddressField = new JTextField(20);
         JButton connectButton = new JButton("Connect");
 
-        portTextField.setMaximumSize(new Dimension(400, 40));
+        IPAddressField.setMaximumSize(new Dimension(400, 40));
         connectButton.setMaximumSize(new Dimension(200, 40));
 
-        new TextPrompt("Port", portTextField);
+        new TextPrompt("IP Address (default: localhost)", IPAddressField);
 
         inputPanel.add(Box.createVerticalStrut(75));
-        inputPanel.add(portTextField);
+        inputPanel.add(IPAddressField);
         inputPanel.add(Box.createVerticalStrut(20));
         inputPanel.add(connectButton);
         inputPanel.add(Box.createVerticalGlue());
@@ -43,10 +43,12 @@ class PortRequest extends JPanel {
         add(Box.createVerticalGlue());
 
         connectButton.addActionListener(e -> {
-            String portStr = portTextField.getText().trim();
-            int port = Integer.parseInt(portStr);
+            String ipAddress = IPAddressField.getText().trim();
+            if (ipAddress.isEmpty()) {
+                ipAddress = "localhost";
+            }
 
-            app.initializeClient(port);
+            app.initializeClient(ipAddress);
 
             connectButton.setEnabled(false);
 
