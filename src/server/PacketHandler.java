@@ -243,11 +243,10 @@ public class PacketHandler {
                     
                     //send to all participants
                     List<String> allParticipants = group.getGroupUsers();
-<<<<<<< HEAD
-                    sendGroupsToParticipant(allParticipants, senderUser.getUsername(), handler);
-=======
+                    //DECISION: Use sendGroupUpdateToParticipants for real-time updates
+                    //This sends UPDATE packets (single group) instead of ALL packets (all groups)
+                    //Provides better performance and immediate message visibility
                     sendGroupUpdateToParticipants(group, allParticipants, senderUser.getUsername(), handler);
->>>>>>> 794bd1ace3e5063890adc28763198620dc184d44
                     
                 } else if (groupObj instanceof DirectMessage) {
                     DirectMessage dm = (DirectMessage) groupObj;
@@ -267,26 +266,20 @@ public class PacketHandler {
                     
                     //send to all participants
                     List<String> allParticipants = dm.getGroupUsers();
-<<<<<<< HEAD
-                    sendGroupsToParticipant(allParticipants, senderUser.getUsername(), handler);
-=======
                     sendGroupUpdateToParticipants(dm, allParticipants, senderUser.getUsername(), handler);
->>>>>>> 794bd1ace3e5063890adc28763198620dc184d44
                 }
             }
         } catch (Exception e) {
             sendError(handler, "MESSAGES", "Server error processing message");
         }
     }
-<<<<<<< HEAD
-=======
-  
+    
     private void sendGroupUpdateToParticipants(Object groupObj, List<String> allParticipants, String senderName, ClientHandler handler) {
         if (groupObj == null) {
             return;
         }
         
-        // Create a fresh copy of the group/DM with current messages
+        //create a fresh copy of the group/DM with current messages
         Object freshGroup = null;
         if (groupObj instanceof Group) {
             Group g = (Group) groupObj;
@@ -316,7 +309,7 @@ public class PacketHandler {
             return;
         }
         
-        // Send UPDATE packet with just this group
+        //send update packet with just this group
         Packet updatePacket = new Packet(Type.GROUP, "UPDATE", List.of(freshGroup));
         
         for (String participantName : allParticipants) {
@@ -330,7 +323,6 @@ public class PacketHandler {
             }
         }
     }
->>>>>>> 794bd1ace3e5063890adc28763198620dc184d44
     
     private void sendGroupsToParticipant(List<String> allParticipants, String senderName, ClientHandler handler) {
         for (String participantName : allParticipants) {

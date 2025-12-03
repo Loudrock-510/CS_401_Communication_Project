@@ -31,10 +31,13 @@ public class Client {
 	/**
 	 * Creates and initializes a Client instance connected to the server.
 	 * This method can be called from GUI applications to get a connected Client.
+	 * Uses default port 12345.
 	 */
 	public static Client createAndConnect() {
+		return createAndConnect(12345);
+	}
+	public static Client createAndConnect(int port) {
 		try {
-			int port = 12345;
 			String host = InetAddress.getLocalHost().getHostName();
 			Socket socket = new Socket(host, port);
 			

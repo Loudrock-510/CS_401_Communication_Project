@@ -65,12 +65,7 @@ class Chatroom extends JPanel {
             String text = sendMessageTf.getText().trim();
             if (text.isEmpty()) {
                 JOptionPane.showMessageDialog(this, "No message detected.");
-<<<<<<< HEAD
             } else if (text.length() > 1000) {
-=======
-            }
-            else if (text.length() > 1000) {
->>>>>>> 794bd1ace3e5063890adc28763198620dc184d44
                 JOptionPane.showMessageDialog(this, 
                     "Message exceeds 1000 character limit. Current length: " + text.length() + " characters.",
                     "Message Too Long",
@@ -294,12 +289,6 @@ class Chatroom extends JPanel {
                         latestCount = ((DirectMessage) latestGroup).getMessage().size();
                     }
                     
-                    /*
-                    if (latestCount >= currentCount) {
-                        currentGroup = latestGroup;
-                        loadGroupConversation(latestGroup);
-                    }
-                    */
                     
                     if (latestCount >= currentCount) {
                         if (latestCount > currentCount && latestCount > 0) {
@@ -309,7 +298,7 @@ class Chatroom extends JPanel {
                             } else {
                                 lastMessage = ((DirectMessage) latestGroup).getMessage().get(latestCount - 1);
                             }
-                            Client client = app.getClient();
+
                             if (client != null && client.getMyUser() != null) {
                                 String currentUser = client.getMyUser().getUsername();
                                 if (!lastMessage.getSender().equals(currentUser)) {

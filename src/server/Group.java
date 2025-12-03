@@ -24,33 +24,6 @@ public class Group implements Serializable {
 		this.newMessage = false;
 	}
 	
-	//constructor new group , sender and recip and inital message
-	
-	/* --ERRORS, COMMENTING OUT--
-	public Group(User sender, List<String> recipient, String initialMessage) {
-		this.groupUID = count++;
-		
-		//add sender
-		groupUsers.add(sender.getUsername());
-		
-		//add recipients w loop
-		for(User u : recipient) {
-			groupUsers.add(u.getUsername());
-		}
-		
-		//create initial message
-		LocalDateTime timestamp = LocalDateTime.now() ;
-		Message msg = new Message(timestamp,initialMessage,sender, List<User> recipient);
-		//add it to list
-		messages.add(msg);
-		
-		//size of group
-		this.numUsers = groupUsers.size();
-		//new so true
-		this.newMessage = true;
-	}
-	*/
-	
 	public Group(String sender, List<String> recipients, String messageText, LocalDateTime timestamp) {
 		this.groupUID = count++;
 		

@@ -21,13 +21,8 @@ public class TeamChatApp extends JFrame {
     private final CardLayout cards = new CardLayout();
     private final JPanel root = new JPanel(cards);
 
-<<<<<<< HEAD
     private Client client;
     private PortRequest portRequest;
-=======
-
-    private Client client; // Client instance for server communication
->>>>>>> 794bd1ace3e5063890adc28763198620dc184d44
     private Login login;
     private SearchChat searchChat;
     private Chatroom chatroom;
@@ -42,7 +37,9 @@ public class TeamChatApp extends JFrame {
         setMinimumSize(new Dimension(720, 480));
 
         //initialize Client connection in background thread
-        initializeClient();
+        //DECISION: Keep default port initialization for backward compatibility
+        //PortRequest allows users to specify custom port if needed
+        initializeClient(12345);
 
         chatroom = new Chatroom(this);
         chatroomIT = new ChatroomIT(this);
@@ -73,7 +70,7 @@ public class TeamChatApp extends JFrame {
                 SwingUtilities.invokeLater(() -> {
                     JOptionPane.showMessageDialog(this,
                         "Failed to connect to server.\n" +
-                        "Please ensure the server is running on port 12345.",
+                        "Please ensure the server is running on port " + port + ".",
                         "Connection Error",
                         JOptionPane.ERROR_MESSAGE);
                 });
@@ -210,23 +207,7 @@ public class TeamChatApp extends JFrame {
         if (searchChat != null) {
             searchChat.refreshGroups();
         }
-        //update Chatroom if itss displaying this group
-        if (chatroom != null) {
-            chatroom.updateGroupIfOpen(groupObj);
-        }
-    }
-
-    void notifyGroupUpdated(Object groupObj) {
-        if (groupObj == null) {
-            return;
-        }
-        if (!SwingUtilities.isEventDispatchThread()) {
-            SwingUtilities.invokeLater(() -> notifyGroupUpdated(groupObj));
-            return;
-        }
-        if (searchChat != null) {
-            searchChat.refreshGroups();
-        }
+        //update Chatroom if it's displaying this group
         if (chatroom != null) {
             chatroom.updateGroupIfOpen(groupObj);
         }

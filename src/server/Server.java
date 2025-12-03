@@ -529,14 +529,14 @@ public class Server {
 			file = new File("src/All_Messages.txt");
 		}
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
-			// Save DirectMessages - one message per line
+			// save DirectMessages - one message per line
 			for (DirectMessage dm : directChats) {
 				for (Message msg : dm.getMessage()) {
 					bw.write("MESSAGE|DM|" + dm.getChatUID() + "|");
 					bw.write(msg.getTimestamp().toString() + "|");
 					bw.write(msg.getSender() + "|");
 					bw.write(msg.getMessage().replace("|", "\\|").replace("\n", "\\n") + "|");
-					// Write recipients
+					// write recipients
 					for (int i = 0; i < msg.getRecipients().size(); i++) {
 						if (i > 0) bw.write(",");
 						bw.write(msg.getRecipients().get(i));
@@ -545,14 +545,14 @@ public class Server {
 				}
 			}
 			
-			// Save Groups - one message per line
+			// save Groups - one message per line
 			for (Group group : groups) {
 				for (Message msg : group.getMessages()) {
 					bw.write("MESSAGE|GROUP|" + group.getGroupUID() + "|");
 					bw.write(msg.getTimestamp().toString() + "|");
 					bw.write(msg.getSender() + "|");
 					bw.write(msg.getMessage().replace("|", "\\|").replace("\n", "\\n") + "|");
-					// Write recipients
+					// write recipients
 					for (int i = 0; i < msg.getRecipients().size(); i++) {
 						if (i > 0) bw.write(",");
 						bw.write(msg.getRecipients().get(i));
