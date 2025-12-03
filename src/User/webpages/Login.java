@@ -64,7 +64,7 @@ class Login extends JPanel {
                         
                         //check if login was successful (user object received)
                         if (client.getMyUser() != null) {
-                            //show SearchChat - it will refresh when groups arrive via callback
+                            //show SearchChat  it will refresh when groups arrive via callback
                             //also force a refresh now in case groups already arrived
                             app.showSearchChat();
                         } else {

@@ -8,7 +8,6 @@ public class User implements Serializable{
 	
 
 	private String password;
-	static private int count = 0;
 	private int UID;
 	private boolean status;
 	private boolean admin;
@@ -17,8 +16,6 @@ public class User implements Serializable{
 		this.username = username;
 		this.password = password;
 		this.admin = admin;
-		this.UID = count++;
-		this.status = false; //offline
 	}
 	public boolean isStatus() {
 		return status;

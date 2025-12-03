@@ -63,13 +63,7 @@ public class Client {
 				if (client == null) {
 					return;
 				}
-				
-				// TODO: REMOVE THIS BEFORE PRODUCTION - Test mode only
-				// Running test mode - comment out or remove this line when done testing
-				//client.runTestMode();
 
-				// Keep running to allow message receiving
-				// GUI will call client.sendLogin(), client.sendMessage(), etc.
 				while (true) {
 					Thread.sleep(1000);
 				}
@@ -162,7 +156,9 @@ public class Client {
 		}
 		public synchronized void setMyUser(User user) {
 			this.myUser = user;
-			this.loggedIn = user != null;
+			if (user != null)
+				this.loggedIn = true;
+			else this.loggedIn = false;
 		}
 		
 		public synchronized User getMyUser() {
