@@ -1,12 +1,13 @@
 package server;
 
+import java.io.Serializable;
 import java.time.LocalDateTime;
 import java.util.*;
 import server.User;
 //import Message
 //import User
 
-public class Group {
+public class Group implements Serializable {
 	private List<String> groupUsers = new ArrayList<>();
 	private List<Message> messages = new ArrayList<>();
 	static private int count = 0;
@@ -51,8 +52,22 @@ public class Group {
 	*/
 	
 	public Group(String sender, List<String> recipients, String messageText, LocalDateTime timestamp) {
-        //TODO Auto-generated constructor stub
-    }
+		this.groupUID = count++;
+		
+		//add sender
+		groupUsers.add(sender);
+		
+		//add recipients
+		groupUsers.addAll(recipients);
+		
+		//create initial message
+		Message msg = new Message(timestamp, messageText, sender, recipients);
+		//add it to list
+		messages.add(msg);
+		
+		//new so true
+		this.newMessage = true;
+	}
 
     //this is adding a single person to group
 	public void addToGroup(String username) {

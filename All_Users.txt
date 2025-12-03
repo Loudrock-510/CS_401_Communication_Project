@@ -6,3 +6,4 @@ Loudrock|Loudrock510|true
 Kyle1234|Kyle1234|true
 Matt420|Matt420|true
 TestUser|Password|false
+Nathan|Loudrock510|true

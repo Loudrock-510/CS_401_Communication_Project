@@ -45,57 +45,44 @@ public class Server {
 		try {
 			serverSocket = new ServerSocket(port);
 			
-			//create pool of reusable threads for handling clients and
-			//newcachedthreadpool is scalable and reuses threads
+			//create pool of reusable threads for handling clients and 
+			//newCachedThreadPool is scalable and reuses threads
 			threadPool = Executors.newCachedThreadPool();
-			System.out.println("Server started on port: " + port);
+			if (port == 12345) {
+				System.out.println("Started on port: 12345");
+			}
 		}catch(IOException e) {
-			System.err.println("Error starting server on port " + port + ": " + e.getMessage());
+			// Error starting server
+			System.err.println("SERVER: Failed to create ServerSocket on port " + port + ": " + e.getMessage());
 			e.printStackTrace();
-			throw new RuntimeException("Failed to start server", e);
+			serverSocket = null; // Ensure it's null if creation failed
 		}
 	}
 
 	private void seedUsers() {
 		try {
-			//try multiple possible locations for the file
-			String projectRoot = System.getProperty("user.dir");
-			System.out.println("Current working directory: " + projectRoot);
+			// Try multiple possible locations for the file
 			File file = new File("All_Users.txt");
-			System.out.println("Checking: " + file.getAbsolutePath() + " - exists: " + file.exists());
 			if (!file.exists()) {
-				//try in src directory
+				// Try in src directory
 				file = new File("src/All_Users.txt");
-				System.out.println("Checking: " + file.getAbsolutePath() + " - exists: " + file.exists());
-			}
-			if (!file.exists()) {
-				//try in project root
-				file = new File(projectRoot, "All_Users.txt");
-				System.out.println("Checking: " + file.getAbsolutePath() + " - exists: " + file.exists());
-			}
-			if (!file.exists()) {
-				//try in project root src directory
-				file = new File(projectRoot, "src/All_Users.txt");
-				System.out.println("Checking: " + file.getAbsolutePath() + " - exists: " + file.exists());
 			}
 			
 			if (file.exists()) {
-				System.out.println("Loading users from: " + file.getAbsolutePath());
 				BufferedReader br = new BufferedReader(new FileReader(file));
 				String line;
-				int loadedCount = 0;
 				while ((line = br.readLine()) != null) {
 					line = line.trim();
 					if (line.isEmpty()) {
 						continue;
 					}
-					//format: username|password|admin(boolean)
+					// Format: username|password|admin(boolean)
 					String[] parts = line.split("\\|");
 					if (parts.length == 3) {
 						String username = parts[0].trim();
 						String password = parts[1].trim();
 						boolean isAdmin = Boolean.parseBoolean(parts[2].trim());
-						//prevent duplicate users
+						// Prevent duplicate users
 						boolean alreadyExists = false;
 						for (User u : users) {
 							if (u.getUsername().equals(username)) {
@@ -105,27 +92,18 @@ public class Server {
 						}
 						if (!alreadyExists) {
 							users.add(new User(username, password, isAdmin));
-							loadedCount++;
 						}
-					} else {
-						System.out.println("WARNING: Skipping invalid user line (expected format: username|password|admin): " + line);
 					}
 				}
 				br.close();
-				System.out.println("Loaded " + loadedCount + " user(s) from file. Total users: " + users.size());
-			} else {
-				System.out.println("WARNING: All_Users.txt not found. No users loaded. Login will not work until users are created.");
-				System.out.println("Searched in: " + new File("All_Users.txt").getAbsolutePath());
-				System.out.println("Searched in: " + new File("src/All_Users.txt").getAbsolutePath());
 			}
 		} catch (IOException e) {
-			System.err.println("ERROR: Failed to read users file: " + e.getMessage());
-			e.printStackTrace();
+			// Failed to read users
 		}
 	}
 	
 	public synchronized void saveUsersToFile() {
-		//try multiple possible locations for the file
+		// Try multiple possible locations for the file
 		File file = new File("All_Users.txt");
 		if (!file.exists() && new File("src/All_Users.txt").exists()) {
 			file = new File("src/All_Users.txt");
@@ -137,13 +115,14 @@ public class Server {
 				bw.newLine();
 			}
 		} catch (IOException e) {
-			//failed to save users
+			// Failed to save users
 		}
 	}
 	//start server and accept clients
 	public void startServer() {
 		if (serverSocket == null) {
-			throw new IllegalStateException("Server socket not initialized. Server failed to start.");
+			System.err.println("SERVER: Cannot start server - ServerSocket is null. Check if port is available.");
+			return;
 		}
 		System.out.println("Waiting for client connections...");
 		while(true) {
@@ -155,9 +134,9 @@ public class Server {
 				//make new clienthandler for this socket as it talks to one client
 				ClientHandler handler = new ClientHandler(socket,this);
 				
-				//threadpool managed by java's pool instead of new thread(handler).start();
-				//which creates a new thread every time (heavy, slower if many)
-				//threadpool instead bc reuses threads instead of always creating new ones. limits how many threads run at once (prevents overload). easier to manage and shut down cleanly
+				//threadpool managed by java's pool instead of new Thread(handler).start();
+				// which creates a new thread every time (heavy, slower if many)
+				//threadpool instead bc Reuses threads instead of always creating new ones. Limits how many threads run at once (prevents overload). Easier to manage and shut down cleanly
 				threadPool.execute(handler);
 			}catch (IOException e) {
 				break;
@@ -177,7 +156,7 @@ public class Server {
 					out.flush(); //send immediately
 				}
 			}catch(IOException e) {
-				//failed to send packet
+				// Failed to send packet
 			}
 		}
 	}
@@ -190,7 +169,7 @@ public class Server {
 				out.writeObject(packet);
 				out.flush();
 			}catch (IOException e) {
-				//remove from maps if stream is broken
+				// Remove from maps if stream is broken
 				clientOutputStreams.remove(targetUser.getUsername());
 				activeClients.remove(targetUser.getUsername());
 			}
@@ -220,34 +199,15 @@ public class Server {
 		return false; //not found
 	}
 	
-	//save load methods
-	//not implemented yet
-	public void saveLog() {
-	}
-	
-	public void saveUser() {
-	}
-	
-	public void stringToLog() {}
-	public void stringToUser() {}
-	public void createLog() {}
-	
 	//getters
 	public List<User> getUsers(){
 		return users;
 	}
 	
 	public synchronized Optional<User> findUserByCredentials(String username, String password){
-		if (users.isEmpty()) {
-			System.out.println("WARNING: Attempted login but no users are loaded in the system.");
-		}
-		Optional<User> found = users.stream()
+		return users.stream()
 				.filter(u -> u.getUsername().equals(username) && u.getPassword().equals(password))
 				.findFirst();
-		if (!found.isPresent()) {
-			System.out.println("Login attempt failed for username: " + username + " (Total users in system: " + users.size() + ")");
-		}
-		return found;
 	}
 	
 	public synchronized Optional<User> findUserByUsername(String username){
@@ -260,10 +220,11 @@ public class Server {
 		return masterLog;
 	}
 	
+
 	public synchronized List<Message> getAllMessagesByUser(String username) {
 		List<Message> userMessages = new ArrayList<>();
 		
-		//search through all groups
+		// Search through all groups
 		for (Group group : groups) {
 			for (Message msg : group.getMessages()) {
 				if (msg.getSender().equals(username)) {
@@ -272,9 +233,18 @@ public class Server {
 			}
 		}
 		
-		//search through all direct messages
+		// Search through all direct messages
 		for (DirectMessage dm : directChats) {
 			for (Message msg : dm.getMessage()) {
+				if (msg.getSender().equals(username)) {
+					userMessages.add(msg);
+				}
+			}
+		}
+		
+		//also check masterLog as fallback (in case messages aren't in groups/DMs)
+		if (userMessages.isEmpty() && !masterLog.isEmpty()) {
+			for (Message msg : masterLog) {
 				if (msg.getSender().equals(username)) {
 					userMessages.add(msg);
 				}
@@ -295,6 +265,7 @@ public class Server {
 		return directChats;
 	}
 	
+
 	public synchronized Group getGroupById(int groupUID) {
 		for (Group group : groups) {
 			if (group.getGroupUID() == groupUID) {
@@ -304,6 +275,7 @@ public class Server {
 		return null;
 	}
 	
+
 	public synchronized DirectMessage getDirectMessageById(int chatUID) {
 		for (DirectMessage dm : directChats) {
 			if (dm.getChatUID() == chatUID) {
@@ -312,7 +284,7 @@ public class Server {
 		}
 		return null;
 	}
-	
+
 	private boolean participantsMatch(List<String> list1, List<String> list2) {
 		if (list1.size() != list2.size()) {
 			return false;
@@ -324,34 +296,35 @@ public class Server {
 		return sorted1.equals(sorted2);
 	}
 	
+
 	public synchronized Object findOrCreateGroup(List<String> participants, String sender, String messageText, LocalDateTime timestamp) {
-		//check if exactly 2 participants (DirectMessage)
+		// Check if exactly 2 participants (DirectMessage)
 		if (participants.size() == 2) {
-			//check existing direct messages
+			// Check existing direct messages
 			for (DirectMessage dm : directChats) {
 				if (participantsMatch(dm.getGroupUsers(), participants)) {
 					return dm;
 				}
 			}
-			//create new DirectMessage
-			String recipient = participants.get(0).equals(sender) ? participants.get(1) : participants.get(0);
-			Optional<User> senderUser = findUserByUsername(sender);
-			Optional<User> recipientUser = findUserByUsername(recipient);
-			if (senderUser.isPresent() && recipientUser.isPresent()) {
-				DirectMessage newDM = new DirectMessage(senderUser.get(), recipientUser.get(), messageText);
-				directChats.add(newDM);
-				modified = true;
-				return newDM;
-			}
-			return null;
+		// Create new DirectMessage
+		String recipient = participants.get(0).equals(sender) ? participants.get(1) : participants.get(0);
+		Optional<User> senderUser = findUserByUsername(sender);
+		Optional<User> recipientUser = findUserByUsername(recipient);
+		if (senderUser.isPresent() && recipientUser.isPresent()) {
+			DirectMessage newDM = new DirectMessage(senderUser.get(), recipientUser.get(), messageText);
+			directChats.add(newDM);
+			modified = true;
+			return newDM;
+		}
+		return null;
 		} else {
-			//check existing groups
+			// Check existing groups
 			for (Group group : groups) {
 				if (participantsMatch(group.getGroupUsers(), participants)) {
 					return group;
 				}
 			}
-			//create new Group
+			// Create new Group
 			List<String> recipients = new ArrayList<>(participants);
 			recipients.remove(sender);
 			Group newGroup = new Group(sender, recipients, messageText, timestamp);
@@ -361,16 +334,17 @@ public class Server {
 		}
 	}
 	
+
 	public synchronized List<Object> getGroupsForUser(String username) {
 		List<Object> userGroups = new ArrayList<>();
 		
 		for (Group group : groups) {
 			List<String> participants = group.getGroupUsers();
 			if (participants.contains(username)) {
-				//force read of all messages to ensure they're in memory before adding to list
+				// Force read of all messages to ensure they're in memory before adding to list
 				List<Message> msgs = group.getMessages();
 				for (Message m : msgs) {
-					m.getSender(); //force read
+					m.getSender(); // Force read
 				}
 				userGroups.add(group);
 			}
@@ -379,10 +353,10 @@ public class Server {
 		for (DirectMessage dm : directChats) {
 			List<String> participants = dm.getGroupUsers();
 			if (participants.contains(username)) {
-				//force read of all messages to ensure they're in memory before adding to list
+				// Force read of all messages to ensure they're in memory before adding to list
 				List<Message> msgs = dm.getMessage();
 				for (Message m : msgs) {
-					m.getSender(); //force read
+					m.getSender(); // Force read
 				}
 				userGroups.add(dm);
 			}
@@ -391,16 +365,21 @@ public class Server {
 		return userGroups;
 	}
 	
+
 	private void sortMessagesByTimestamp(Group group) {
 		Collections.sort(group.getMessages(), (m1, m2) -> 
 			m1.getTimestamp().compareTo(m2.getTimestamp()));
 	}
 	
+
 	private void sortMessagesByTimestamp(DirectMessage dm) {
 		Collections.sort(dm.getMessage(), (m1, m2) -> 
 			m1.getTimestamp().compareTo(m2.getTimestamp()));
 	}
 	
+	/**
+	 * Sorts all messages in all groups and direct messages
+	 */
 	public synchronized void sortAllMessages() {
 		for (Group group : groups) {
 			sortMessagesByTimestamp(group);
@@ -410,13 +389,14 @@ public class Server {
 		}
 	}
 	
+
 	public synchronized void addMessageToGroup(Group group, Message message) {
 		group.getMessages().add(message);
-		sortMessagesByTimestamp(group); //keep sorted
+		sortMessagesByTimestamp(group); // Keep sorted
 		group.sendNotification();
 		modified = true;
-		// Don't save to file here - do it asynchronously to avoid blocking serialization
-		// saveGroupsToFile(); // Persist after update - moved to async
+		// Don't save to file here
+		// saveGroupsToFile(); // Persist after update
 	}
 	
 	//async file save to avoid blocking
@@ -426,13 +406,12 @@ public class Server {
 		}).start();
 	}
 	
+
 	public synchronized void addMessageToDirectMessage(DirectMessage dm, Message message) {
 		dm.getMessage().add(message);
-		sortMessagesByTimestamp(dm); //keep sorted
+		sortMessagesByTimestamp(dm); // Keep sorted
 		dm.sendNotification();
 		modified = true;
-		// Don't save to file here - do it asynchronously to avoid blocking serialization
-		// saveGroupsToFile(); // Persist after update - moved to async
 	}
 	
 	//shutting down
@@ -486,18 +465,17 @@ public class Server {
 			}
 			fw.close();
 		} catch (IOException e) {
-		//todo auto-generated catch block
-		//system.out.println("io filewriter error");
+			// TODO Auto-generated catch block
+			//System.out.println("IO filewriter error");
 			JOptionPane.showMessageDialog(null, "IO filewriter error");
-			//e.printstacktrace();
+			//e.printStackTrace();
 			return;
 		}
 		modified = false;
 	}
 
 	public String loadData(String filename) {
-		//note: msgsfile is final, cannot be reassigned
-		//this method signature may need to be refactored
+		// Note: msgsFile is final, cannot be reassigned
 		String buf = "";
 		try {
 		File file = new File(filename);
@@ -514,34 +492,29 @@ public class Server {
 	}
 
 	private void loadMsgs() {
-		//todo: implement proper loading from file
-		//this method needs to be refactored to properly deserialize group and directmessage objects
-		//for now, leaving as placeholder to prevent compilation errors
+	
 		String s = loadData(msgsFile);
 		if (s == null || s.isEmpty()) {
 			return;
 		}
 		
-		//parse file content - this is a simplified version
-		//full implementation would need proper serialization/deserialization
 		String[] parts = s.split("~");
 		if (parts.length >= 4) {
 			String dmsStr = parts[1];
 			String groupsStr = parts[3];
 			
-			//parse direct messages
+			//Parse direct messages
 			String[] dmLines = dmsStr.split("\n");
 			for (String line : dmLines) {
 				if (line != null && !line.trim().isEmpty()) {
-					//todo: deserialize directmessage from line
+					
 				}
 			}
 			
-			//parse groups
+			// Parse groups
 			String[] groupLines = groupsStr.split("\n");
 			for (String line : groupLines) {
 				if (line != null && !line.trim().isEmpty()) {
-					//todo: deserialize group from line
 				}
 			}
 		}
@@ -556,7 +529,7 @@ public class Server {
 			file = new File("src/All_Messages.txt");
 		}
 		try (BufferedWriter bw = new BufferedWriter(new FileWriter(file))) {
-			//save directmessages - one message per line
+			// Save DirectMessages - one message per line
 			for (DirectMessage dm : directChats) {
 				for (Message msg : dm.getMessage()) {
 					bw.write("MESSAGE|DM|" + dm.getChatUID() + "|");
@@ -572,7 +545,7 @@ public class Server {
 				}
 			}
 			
-			//save groups - one message per line
+			// Save Groups - one message per line
 			for (Group group : groups) {
 				for (Message msg : group.getMessages()) {
 					bw.write("MESSAGE|GROUP|" + group.getGroupUID() + "|");
@@ -590,21 +563,21 @@ public class Server {
 		} catch (IOException e) {
 		}
 	}
-	
+
 	private synchronized void loadGroupsFromFile() {
-		//try multiple possible locations for the file
+		// Try multiple possible locations for the file
 		File file = new File("All_Messages.txt");
 		if (!file.exists()) {
-			//try in src directory
+			// Try in src directory
 			file = new File("src/All_Messages.txt");
 		}
 		if (!file.exists()) {
 			return;
 		}
 		
-		//map to store messages by group: "type|uid" -> list<message>
+		// Map to store messages by group: "TYPE|UID" -> List<Message>
 		Map<String, List<Message>> messagesByGroup = new HashMap<>();
-		//map to store participants: "type|uid" -> set<string>
+		// Map to store participants: "TYPE|UID" -> Set<String>
 		Map<String, Set<String>> participantsByGroup = new HashMap<>();
 		
 		try (BufferedReader br = new BufferedReader(new FileReader(file))) {
@@ -627,9 +600,32 @@ public class Server {
 				}
 				
 				try {
-					String type = parts[1]; //"dm" or "group"
+					String type = parts[1]; // "DM" or "GROUP"
 					int uid = Integer.parseInt(parts[2]);
-					LocalDateTime timestamp = LocalDateTime.parse(parts[3]);
+					
+					LocalDateTime timestamp;
+					String timeStr = parts[3].trim();
+					try {
+						timestamp = LocalDateTime.parse(timeStr);
+					} catch (Exception e) {
+			
+						try {
+							// Format: 2024-01-15T11:00 
+							if (timeStr.matches("\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}$")) {
+								timeStr += ":00"; 
+								timestamp = LocalDateTime.parse(timeStr);
+							} else {
+								// Try with DateTimeFormatter for other formats
+								java.time.format.DateTimeFormatter formatter = 
+									java.time.format.DateTimeFormatter.ofPattern("yyyy-MM-dd'T'HH:mm");
+								timestamp = LocalDateTime.parse(timeStr, formatter);
+							}
+						} catch (Exception e2) {
+							System.err.println("Failed to parse timestamp: " + timeStr + " at line " + lineNumber);
+							throw e2; 
+						}
+					}
+					
 					String sender = parts[4];
 					String messageText = parts[5].replace("\\|", "|").replace("\\n", "\n");
 					String[] recipients = parts[6].split(",");
@@ -643,10 +639,12 @@ public class Server {
 					
 					Message msg = new Message(timestamp, messageText, sender, recipientList);
 					
-					//group key: "type|uid"
+					//add to masterLog
+					masterLog.add(msg);
+					
+					// Group key: "TYPE|UID"
 					String groupKey = type + "|" + uid;
 					
-					//add message to group
 					if (!messagesByGroup.containsKey(groupKey)) {
 						messagesByGroup.put(groupKey, new ArrayList<>());
 						participantsByGroup.put(groupKey, new HashSet<>());
@@ -659,10 +657,12 @@ public class Server {
 					
 					messageCount++;
 				} catch (Exception e) {
+					//log parsing errors for debugging
+					System.err.println("Error parsing message at line " + lineNumber + ": " + e.getMessage());
 				}
 			}
 			
-			//reconstruct group and directmessage objects
+			//reconstruct Group and DirectMessage objects
 			int groupCount = 0;
 			for (Map.Entry<String, List<Message>> entry : messagesByGroup.entrySet()) {
 				String groupKey = entry.getKey();
@@ -671,7 +671,7 @@ public class Server {
 				
 				String[] keyParts = groupKey.split("\\|");
 				String type = keyParts[0];
-				//uid is not used - new uids will be assigned
+				// UID is not used - new UIDs will be assigned
 				
 				List<String> participantList = new ArrayList<>(participantSet);
 				
@@ -691,6 +691,8 @@ public class Server {
 			}
 			
 		} catch (IOException e) {
+			System.err.println("SERVER: Error loading messages from file: " + e.getMessage());
+			e.printStackTrace();
 		}
 	}
 	
@@ -698,10 +700,10 @@ public class Server {
 	public static void main(String[] args) {
 		int port = 12345; //ex port number change when figure out which port using which client connects to
 		
-		//make new server listening on that port
+		//make new server istening on that port
 		Server server = new Server(port);
 		
-		//start server waiting for clients forever till stopped
+		//start server waiting for clients forvever till stopped
 		server.startServer();
 	}
 	

@@ -124,7 +124,7 @@ public class Client {
 		// add info to list
 		logData.add(myInfo);
 		// create packet
-		Packet loginInfo = new Packet(Type.LOGIN, "DEFAULT", List.of(logData));
+		Packet loginInfo = new Packet(Type.LOGIN, "REQUEST", List.of(logData));
 		// send packet
 		out.writeObject(loginInfo);
 		// clears
@@ -438,12 +438,7 @@ public class Client {
 						if (packet.getType().equals(server.Type.GROUP)) {
 							String status = packet.getStatus();
 							if ("ALL".equalsIgnoreCase(status) || "UPDATE".equalsIgnoreCase(status)) {
-								//give a small delay then trigger refresh to ensure GUI is ready
-								try {
-									Thread.sleep(100);
-								} catch (InterruptedException ie) {
-									//ignore
-								}
+								//trigger immediate refresh - no delay needed
 								notifyGroupUpdate();
 							}
 						}
