@@ -67,7 +67,7 @@ public class TeamChatApp extends JFrame {
 
     public void initializeClient(String ipAddress) {
         Thread clientThread = new Thread(() -> {
-            client = Client.createAndConnect(12345, ipAddress);
+            client = Client.createAndConnect(ipAddress);
 
             if (client == null) {
                 SwingUtilities.invokeLater(() -> {

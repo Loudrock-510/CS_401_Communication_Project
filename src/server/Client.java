@@ -32,10 +32,10 @@ public class Client {
 	 * Creates and initializes a Client instance connected to the server.
 	 * This method can be called from GUI applications to get a connected Client.
 	 */
-	public static Client createAndConnect() {
+	public static Client createAndConnect(String ipAddress) {
 		try {
 			int port = 12345;
-			String host = InetAddress.getLocalHost().getHostName();
+			String host = ipAddress;
 			Socket socket = new Socket(host, port);
 			
 			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
