@@ -37,21 +37,24 @@ public class Client {
 		return createAndConnect(12345);
 	}
 	public static Client createAndConnect(int port) {
+		return createAndConnect("localhost", port);
+	}
+	public static Client createAndConnect(int port, String host) {
+		return createAndConnect(host, port);
+	}
+	public static Client createAndConnect(String host, int port) {
 		try {
-			String host = InetAddress.getLocalHost().getHostName();
 			Socket socket = new Socket(host, port);
 			
 			ObjectOutputStream out = new ObjectOutputStream(socket.getOutputStream());
 			ObjectInputStream in = new ObjectInputStream(socket.getInputStream());
 			
 			Client client = new Client(out, in);
-			instance = client; // set static instance for GUI access
+			instance = client;
 			PacketHandler packetHandler = new PacketHandler(client);
 			
-			// start listening thread for incoming packets
 			client.startListening(packetHandler);
 			
-			// small delay to ensure listener thread is ready
 			Thread.sleep(200);
 			return client;
 		} catch (Exception e) {

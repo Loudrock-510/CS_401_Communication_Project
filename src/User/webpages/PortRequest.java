@@ -43,9 +43,12 @@ class PortRequest extends JPanel {
         add(Box.createVerticalGlue());
 
         connectButton.addActionListener(e -> {
-            String ipAddress = IPAddressField.getText().trim();
-            if (ipAddress.isEmpty()) {
+            final String ipAddress;
+            String input = IPAddressField.getText().trim();
+            if (input.isEmpty()) {
                 ipAddress = "localhost";
+            } else {
+                ipAddress = input;
             }
 
             app.initializeClient(ipAddress);
@@ -71,7 +74,7 @@ class PortRequest extends JPanel {
 
                     if (finalClient != null) {
                         JOptionPane.showMessageDialog(this,
-                                "Successful connection to server on port " + port + "!",
+                                "Successful connection to server at " + ipAddress + " on port 12345!",
                                 "Connection Successful",
                                 JOptionPane.INFORMATION_MESSAGE);
 
@@ -79,7 +82,7 @@ class PortRequest extends JPanel {
                     } else {
                         JOptionPane.showMessageDialog(this,
                                 "Failed to connect to server.\n" +
-                                "Please ensure the server is running on port " + port + ".",
+                                "Please ensure the server is running on port 12345.",
                                 "Connection Error",
                                 JOptionPane.ERROR_MESSAGE);
                     }

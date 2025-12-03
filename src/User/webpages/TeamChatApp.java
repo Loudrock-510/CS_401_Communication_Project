@@ -37,9 +37,7 @@ public class TeamChatApp extends JFrame {
         setMinimumSize(new Dimension(720, 480));
 
         //initialize Client connection in background thread
-        //DECISION: Keep default port initialization for backward compatibility
-        //PortRequest allows users to specify custom port if needed
-        initializeClient(12345);
+        initializeClient("localhost");
 
         chatroom = new Chatroom(this);
         chatroomIT = new ChatroomIT(this);
@@ -64,13 +62,13 @@ public class TeamChatApp extends JFrame {
 
     public void initializeClient(String ipAddress) {
         Thread clientThread = new Thread(() -> {
-            client = Client.createAndConnect(12345, ipAddress);
+            client = Client.createAndConnect(ipAddress, 12345);
 
             if (client == null) {
                 SwingUtilities.invokeLater(() -> {
                     JOptionPane.showMessageDialog(this,
                         "Failed to connect to server.\n" +
-                        "Please ensure the server is running on port " + port + ".",
+                        "Please ensure the server is running on port 12345.",
                         "Connection Error",
                         JOptionPane.ERROR_MESSAGE);
                 });
